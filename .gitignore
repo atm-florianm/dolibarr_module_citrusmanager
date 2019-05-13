@@ -20,3 +20,5 @@
 .idea
 # Vim swap files
 *.swp
+# backup files
+*.back
