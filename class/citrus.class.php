@@ -12,11 +12,16 @@ class Citrus extends CommonObject
     public $element = 'citrus';
     public $table_element = 'citrus';
     public $ismultientitymanaged = 1;
-    public $picto = 'citrusmanager';
+    public $picto = 'citrus';
     public $db;
     public $id;
-    public $fk_user;
+    public $ref;
+    public $label;
     public $date_creation;
+    public $tms;
+    public $import_key;
+    public $fk_user_create;
+    public $fk_user_modif;
 
     function __construct($db) {
         $this->db = $db;
@@ -51,8 +56,8 @@ class Citrus extends CommonObject
 					'tms',
 					'import_key',
 					'fk_user_create',
-					'fk_user_modif') as $name) {
-                $this->$name = $obj->$name;
+					'fk_user_modif') as $field_name) {
+                $this->$field_name = $obj->$field_name;
             }
             $this->db->free($responseSQL);
             return $this->id;
@@ -64,31 +69,26 @@ class Citrus extends CommonObject
 
     function create() {
         global $conf;
+        $now=dol_now();
         $this->db->begin();
         $sql = 'INSERT INTO ' . $this->table_name . ' (
             ref,
             label,
-            date_creation,
-            tms,
-            import_key,
-            fk_user_create,
-            fk_user_modif
+            date_creation
         ) VALUES (
             ' .
-            $this->ref . ', ' .
-            $this->label . ', ' .
-            $this->db->idate($now) . ', ' .
-            $this->db->idate($now) . ', ' .
-            '0' . ', ' .
-            $this->fk_user_create . ', ' .
-            $this->fk_user_modif . ', ' .
+            "'" . $this->db->escape($this->ref) . "'" . ', ' .
+            "'" . $this->db->escape($this->label). "'" . ', ' .
+            "'" . $this->db->idate($now) . "'" .
         ');';
         dol_syslog('Citrus::create', LOG_DEBUG);
         $responseSQL = $this->db->query($sql);
         if ($responseSQL) {
             $id = $this->db->last_insert_id($this->table_name);
             if ($id > 0) {
-
+                $this->db->commit();
+                $this->id = $id;
+                return $id;
             } else {
                 $this->error = $this->db->lasterror();
                 $this->errno = $this->db->lasterrno();

@@ -6,8 +6,6 @@ $langs->loadLangs(array('citrusmanager', 'citrus'));
 
 $action = GETPOST('action', 'alpha');
 
-$object = new Citrus($db);
-
 $template_fill = function ($template, $replacements) use ($langs) {
     $filled_template = $template;
     // Templating: replace some underscore-prefixed names with their dictionary value
@@ -62,19 +60,27 @@ $form_create = $template_fill(
     )
 );
 
-$show_form_create = function () use ($db, $object, $form_create) {
+// Function that displays the Citrus creation form.
+$show_form_create = function () use ($form_create) {
     echo $form_create;
 };
 
-$show_form_edit = function () use ($db, $object) {
+// data access object
+$object = new Citrus($db);
 
+$show_form_edit = function () use ($db, $object) {
+    $id = GETPOST('id');
+    $object->fetch($id);
 };
 
 $save_new_citrus = function () use ($db, $object) {
-
+    $object->ref = GETPOST('ref');
+    $object->label = GETPOST('label');
+    return $object->create();
 };
 
 
+// Display the top part of the Dolibarr standard interface (top and left menus)
 llxHeader();
 
 switch ($action) {
@@ -82,10 +88,15 @@ switch ($action) {
         $show_form_create();
         break;
     case 'save':
-        $save_new_citrus();
-        break;
+        $id = $save_new_citrus();
+        if ($id > 0) {
 
+        } else {
+            var_dump($object);
+        }
+        break;
 }
 
+// Display the bottom part of the Dolibarr standard interface (mostly closing tags, except in some specific cases)
 llxFooter();
 

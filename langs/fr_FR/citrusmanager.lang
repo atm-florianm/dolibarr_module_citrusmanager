@@ -20,6 +20,7 @@ ListCitruses = Mes agrumes
 NewCitrus = Nouvel agrume
 CitrusRef = Référence
 CitrusLabel = Nom complet de l’agrume
+CitrusList = Mes agrumes
 
 # Module label 'ModuleCitrusmanagerName'
 ModuleCitrusmanagerName = Citrusmanager
