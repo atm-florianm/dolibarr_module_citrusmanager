@@ -48,7 +48,7 @@ $userstatic=new User($db);
 
 $new_card_btn = '';
 if (true /*$user->rights->citrusmanager->create*/) {
-    $new_card_btn  = '<a class="butActionNew" href="'.DOT_URL_ROOT.'/custom/citrusmanager/card.php?action=create">';
+    $new_card_btn  = '<a class="butActionNew" href="card.php?action=create">';
     $new_card_btn .= '<span class="valignmiddle">'.$langs->trans('NewCitrus').'</span>';
     $new_card_btn .= '</a>';
 }
