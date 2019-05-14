@@ -44,14 +44,32 @@ if ($action == 'delete') {
  * View
  */
 
+
+// surround function: enclose in HTML opening/closing tags
+$surround = function($tag, $contents, $params = []) {
+    $param_list = '';
+    foreach ($params as $param => $value) {
+        $param_list .= ' ' . $param . '=' . $value;
+    }
+    $opening_tag = '<' . $tag . $param_list . '>';
+    $closing_tag = '</' . $tag . '>';
+
+    return $opening_tag . $contents . $closing_tag;
+};
+
 $userstatic=new User($db);
 
 $new_card_btn = '';
-if (true /*$user->rights->citrusmanager->create*/) {
-    $new_card_btn  = '<a class="butActionNew" href="card.php?action=create">';
-    $new_card_btn .= '<span class="valignmiddle">'.$langs->trans('NewCitrus').'</span>';
-    $new_card_btn .= '</a>';
-}
+$new_card_btn  = $surround('a',
+    $langs->trans('NewCitrus') .
+        '<span class="fa fa-plus-circle valignmiddle"></span>',
+    array(
+        'class' => 'butActionNew',
+        'href' => 'card.php?action=create'
+    )
+);
+
+llxHeader('', $langs->trans('CitrusList'));
 
 print_barre_liste(
     $langs->trans("ListOfCitrus"),
@@ -68,11 +86,11 @@ print_barre_liste(
     $new_card_btn
 );
 
-llxHeader('', $langs->trans('CitrusList'));
-
 $listSQL = <<<SQL
     SELECT 
            citrus.rowid,
+           citrus.ref,
+           citrus.label,
            citrus.date_creation,
            citrus.tms,
            user.login,
@@ -92,16 +110,6 @@ $listSQL .= $db->plimit($limit, $offset);
 
 $responseSQL = $db->query($listSQL);
 
-$surround = function($tag, $contents, $params = []) {
-    $param_list = '';
-    foreach ($params as $param => $value) {
-        $param_list .= ' ' . $param . '=' . $value;
-    }
-    $opening_tag = '<' . $tag . $param_list . '>';
-    $closing_tag = '</' . $tag . '>';
-
-    return $opening_tag . $contents . $closing_tag;
-};
 
 
 if ($responseSQL) {
@@ -118,7 +126,8 @@ if ($responseSQL) {
         $param,
         'align="left"',
         $sortfield,
-        $sortorder);
+        $sortorder
+    );
 	print_liste_field_titre(
 	    "Label",
         $_SERVER["PHP_SELF"],
@@ -127,7 +136,18 @@ if ($responseSQL) {
          $param,
         'align="left"',
         $sortfield,
-        $sortorder);
+        $sortorder
+    );
+	print_liste_field_titre(
+	    "Date",
+        $_SERVER['PHP_SELF'],
+        'citrus.date_creation',
+        '',
+        $param,
+        'align="left"',
+        $sortfield,
+        $sortorder
+    );
 	echo '</tr>', "\n";
 
     $row_count = $db->num_rows($responseSQL);
@@ -141,13 +161,18 @@ if ($responseSQL) {
 		$url_of_card = 'card.php?id=' . $obj->rowid;
 		echo $surround(
 		    'a',
+            $obj->rowid .
             img_object(
                 $langs->trans("ShowCitrus"),
-                "citrus"
-            ) . ' ' . $obj->rowid,
-            ['href' => $url_of_card]
+                'citrus@citrusmanager',
+                'style="max-width: 1.5em"'
+            ) . '&nbsp' . $obj->ref,
+            array('href' => $url_of_card)
         );
 		echo '</td>';
+
+		echo $surround('td', $obj->label, array('align' => 'left'));
+        echo $surround('td', $obj->date_creation, array('align' => 'left'));
 		echo "</tr>\n";
 		$i++;
 	}
