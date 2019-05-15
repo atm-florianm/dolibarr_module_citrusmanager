@@ -12,7 +12,10 @@ class Citrus extends CommonObject
     public $element = 'citrus';
     public $table_element = 'citrus';
     public $ismultientitymanaged = 1;
-    public $picto = 'citrus';
+    public $picto = 'citrus@citrusmanager';
+    /**
+     * @var $db DoliDB  Database handle
+     */
     public $db;
     public $id;
     public $ref;
@@ -20,12 +23,23 @@ class Citrus extends CommonObject
     public $date_creation;
     public $tms;
     public $import_key;
-    public $fk_user_create;
+    public $fk_user_creat;
     public $fk_user_modif;
 
     function __construct($db) {
         $this->db = $db;
         $this->table_name = MAIN_DB_PREFIX . 'citrusmanager_citrus';
+    }
+
+    /**
+     * @param $field_names
+     * @param $obj  mysqli fetch object
+     */
+    private function assign_fields_from_sql_fetch_object($obj, $field_names) {
+        foreach ($field_names as $field_name) {
+            $obj_field_name = ($field_name == 'id') ? 'rowid' : $field_name;
+            $this->$field_name = $obj->$obj_field_name;
+        }
     }
 
     function fetch($id) {
@@ -37,7 +51,7 @@ class Citrus extends CommonObject
                     date_creation,
                     tms,
                     import_key, 
-                    fk_user_create, 
+                    fk_user_creat, 
                     fk_user_modif
                 FROM ' . $this->table_name . '
                 WHERE rowid = ' . $id . '
@@ -49,16 +63,18 @@ class Citrus extends CommonObject
         if ($responseSQL) {
             $obj = $this->db->fetch_object($responseSQL);
 
-            foreach (array('id',
+            $this->assign_fields_from_sql_fetch_object(
+                $obj,
+                array(
+                    'id',
 					'ref',
 					'label',
 					'date_creation',
 					'tms',
 					'import_key',
-					'fk_user_create',
-					'fk_user_modif') as $field_name) {
-                $this->$field_name = $obj->$field_name;
-            }
+					'fk_user_creat',
+					'fk_user_modif')
+            );
             $this->db->free($responseSQL);
             return $this->id;
         } else {
@@ -105,9 +121,50 @@ class Citrus extends CommonObject
 
     function update() {
         global $conf;
+        $now=dol_now();
+        assert($this->id >= 0);
+        $this->db->begin();
+        $sql = 'UPDATE ' . $this->table_name . ' SET
+            ref = \'' . $this->db->escape($this->ref) . '\',
+            label = \'' . $this->db->escape($this->label) . '\'
+            WHERE rowid = ' . $this->id . ';';
+        /*
+        $prepSQL = 'UPDATE ' . $this->table_name . ' SET
+            ref = ?,
+            label = ?
+            WHERE rowid = ?;';
+        */
+        //dol_syslog('Citrus::update', LOG_DEBUG);
+        //$prepSQL = $this->db->db->prepare($prepSQL);
+        //$prepSQL->bind_param('ssi', $this->ref, $this->label, $this->id);
+        //if (!$prepSQL->execute()) {
+        //    return -1;
+        //} else {
+        //    return $this->id;
+        //}
+        if ($this->db->query($sql)) {
+            $this->db->commit();
+            return 1;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
+
     }
 
     function remove() {
+        $sql  = 'DELETE FROM' . $this->table_name . ' WHERE rowid = ' . $this->id . ';';
 
+        dol_syslog("Bookmark::remove", LOG_DEBUG);
+        $resql=$this->db->query($sql);
+        if ($resql)
+        {
+            return 1;
+        }
+        else
+        {
+            $this->error=$this->db->lasterror();
+            return -1;
+        }
     }
 }

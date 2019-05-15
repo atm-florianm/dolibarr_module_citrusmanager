@@ -3,14 +3,13 @@ require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/class/citrus.class.php';
 
 $langs->loadLangs(array('citrusmanager', 'citrus'));
-
 $action = GETPOST('action', 'alpha');
 
 $template_fill = function ($template, $replacements) use ($langs) {
     $filled_template = $template;
     // Templating: replace some underscore-prefixed names with their dictionary value
     foreach ($replacements as $key => $val) {
-        $filled_template = str_replace($key, $val, $filled_template);
+        $filled_template = str_replace('{' . $key . '}', $val, $filled_template);
     }
 
     // Templating: replace "{ABC}" with $langs->trans("ABC")
@@ -25,22 +24,24 @@ $template_fill = function ($template, $replacements) use ($langs) {
 };
 
 // Template with the HTML form to be displayed for the user to create new citruses.
-$template_form_create = <<<HTML
-<form action="_SELF_" method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="token" value="_NEW_SESSION_TOKEN_" />
-    <input type="hidden" name="action" value="save" />
-    _FICHE_TITRE_
+$template_new_citrus_form = <<<HTML
+<form action="{SELF}?action=save" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="token" value="{NEW_SESSION_TOKEN}" />
+    {FICHE_TITRE}
     <div>
         
     </div>
     <table class="border" width="100%">
+    <colgroup><col width="20%"/><col width="40%"/><col width="40%"/></colgroup>
         <tr>
             <td class="fieldrequired">{T:CitrusRef}</td>
-            <td><input id="citrusref" name="ref" class="flat minwidth100" value="toto"/></td>
+            <td><input id="citrusref" name="ref" class="flat minwidth100" style="width: 80%" value="" placeholder="{T:CitrusRefShortHint}"/></td>
+            <td>{T:CitrusRefHint}</td>
         </tr>
         <tr>
             <td class="fieldrequired">{T:CitrusLabel}</td>
-            <td><input id="citruslabel" name="label" class="flat minwidth100"/></td>
+            <td><input id="citruslabel" name="label" class="flat minwidth100" style="width: 80%" placeholder="{T:CitrusLabelShortHint}"/></td>
+            <td>{T:CitrusLabelHint}</td>
         </tr>
     </table>
     <div align="center">
@@ -51,32 +52,137 @@ $template_form_create = <<<HTML
 </form>
 HTML;
 
-$form_create = $template_fill(
-    $template_form_create,
+$new_citrus_form = $template_fill(
+    $template_new_citrus_form,
     array(
-        '_SELF_'              => $_SERVER['PHP_SELF'],
-        '_NEW_SESSION_TOKEN_' => $_SESSION['newtoken'],
-        '_FICHE_TITRE_'       => load_fiche_titre($langs->trans('NewCitrus'))
+        'SELF'              => $_SERVER['PHP_SELF'],
+        'NEW_SESSION_TOKEN' => $_SESSION['newtoken'],
+        'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus'))
     )
 );
 
+$template_show_citrus = <<<HTML
+{FORM_START?}
+<table class="border" width="100%">
+    <tr>
+        <td class="titlefield fieldrequired">{T:CitrusRef}</td>
+        <td>{CITRUS_REF}</td>
+    </tr>
+    <tr>
+        <td class="fieldrequired">{T:CitrusLabel}</td>
+        <td>{CITRUS_LABEL}</td>
+    </tr>
+</table>
+{FORM_BUTTONS?}
+{FORM_END?}
+HTML;
+
+$template_edit_citrus = <<<HTML
+
+HTML;
+
+
+
 // Function that displays the Citrus creation form.
-$show_form_create = function () use ($form_create) {
-    echo $form_create;
+$show_form_create = function () use ($new_citrus_form) {
+    echo $new_citrus_form;
 };
 
 // data access object
 $object = new Citrus($db);
 
-$show_form_edit = function () use ($db, $object) {
-    $id = GETPOST('id');
-    $object->fetch($id);
+/**
+ * @param $editable boolean  Whether to show the citrus as a read-only display or as an edit form
+ */
+$show_citrus = function ($editable) use (
+    $db,
+    $object,
+    $langs,
+    $template_fill,
+    $template_show_citrus,
+    $template_edit_citrus
+) {
+    $id = GETPOST('id', 'int');
+    if ($id <= 0) {
+        // invalid ID passed by POST or GET
+        // TODO: replace this dirty redirect with anything else (error message or default value?)
+        echo '<script>window.setTimeout(() => {window.location = "list.php";}, 1000);</script>';
+        return;
+    }
+    $id = $object->fetch($id);
+    echo "<br>";
+    if ($id < 0) {
+        // no citrus with this ID in the database
+        // TODO: replace this dirty redirect with anything else (error message or default value?)
+        echo '<script>window.setTimeout(() => {window.location = "list.php";}, 1000);</script>';
+        return;
+    }
+    $current_page = $_SERVER['PHP_SELF'];
+    dol_fiche_head(
+        array( // describes the available tab links
+            array(
+                $current_page.'?'.http_build_query(array('id' => $id)), // url
+                $langs->trans('Card'),                             // title
+                'card_tab'                                              // key (ID)
+            ),
+            array(
+                $current_page.'?'.http_build_query(array('id' => $id, 'action' => 'edit')),
+                $langs->trans('Modify'),
+                'card_edit_tab'
+            )
+        ),
+        $editable ? 'card_edit_tab' : 'card_tab',
+        $langs->trans('CitrusCard'),
+        -1,
+        'citrus@citrusmanager'
+    );
+    if ($editable) {
+        $template_values = array(
+            'CITRUS_REF' => '<input name="ref" value="'. $object->ref .'">',
+            'CITRUS_LABEL' => '<textarea name="label" style="width: 85%; height: 5em;">' . $object->label . '</textarea>' . "\n",
+            'FORM_START?' => (
+                '<form action="' . $current_page . '?action=save"' . ' method="POST">' . "\n"
+                .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
+                .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
+            ),
+            'FORM_BUTTONS?' => '<input type="submit" class="button" value="{T:Save}" name="save"/>',
+            'FORM_END?' => '</form>'
+        );
+    } else {
+        $template_values = array(
+            'CITRUS_REF' => $object->ref,
+            'CITRUS_LABEL' => $object->label,
+            'FORM_START?' => '',
+            'FORM_BUTTONS?' => '',
+            'FORM_END?' => ''
+        );
+    }
+
+    echo $template_fill(
+        $template_show_citrus,
+        $template_values
+    );
+    // dol_banner_tab();
+
+    dol_fiche_end();
+
 };
 
-$save_new_citrus = function () use ($db, $object) {
-    $object->ref = GETPOST('ref');
-    $object->label = GETPOST('label');
-    return $object->create();
+/**
+ * @param $id  NULL if new record, else rowid of record to update
+ * @return int ID of the created or updated record if successful
+ *             -1 if SQL insert or update failed,
+ *             -2 if SQL insert was executed but last_insert_id <= 0
+ */
+$save_citrus = function ($id = null) use ($db, $object) {
+    $object->ref = GETPOST('ref', 'alpha');
+    $object->label = GETPOST('label', 'alpha');
+    if ($id) {
+        $object->id = $id;
+        return $object->update();
+    } else {
+        return $object->create();
+    }
 };
 
 
@@ -88,13 +194,19 @@ switch ($action) {
         $show_form_create();
         break;
     case 'save':
-        $id = $save_new_citrus();
-        if ($id > 0) {
-
-        } else {
-            var_dump($object);
+        $id = GETPOST('id', 'int');
+        $result = $save_citrus($id);
+        if ($result <= 0) {
+            assert(false);
+            exit;
         }
+        $show_citrus(false);
         break;
+    case 'edit':
+        $show_citrus(true);
+        break;
+    default:
+        $show_citrus(false);
 }
 
 // Display the bottom part of the Dolibarr standard interface (mostly closing tags, except in some specific cases)

@@ -72,7 +72,7 @@ $new_card_btn  = $surround('a',
 llxHeader('', $langs->trans('CitrusList'));
 
 print_barre_liste(
-    $langs->trans("ListOfCitrus"),
+    $langs->trans("CitrusList"),
     $page,
     $_SERVER['PHP_SELF'],
     $param,

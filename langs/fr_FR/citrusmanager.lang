@@ -18,9 +18,17 @@
 #
 ListCitruses = Mes agrumes
 NewCitrus = Nouvel agrume
-CitrusRef = Référence
-CitrusLabel = Nom complet de l’agrume
 CitrusList = Mes agrumes
+CitrusmanagerArea = Espace de gestion des agrumes
+RedirectionNotice = Vous allez être redirigé vers la liste
+
+CitrusRef = Référence
+CitrusRefShortHint = Référence (ex: “orange Navel”)
+CitrusRefHint = Référence de votre agrume (par exemple <i>"orange Navel"</i>)
+
+CitrusLabel = Nom complet de l’agrume
+CitrusLabelShortHint = Nom complet
+CitrusLabelHint = Libellé de votre agrume (par exemple <i>"Citrus sinensis var. ‘Washington Navel’; PG = Citrus aurantium"</i>)
 
 # Module label 'ModuleCitrusmanagerName'
 ModuleCitrusmanagerName = Citrusmanager
