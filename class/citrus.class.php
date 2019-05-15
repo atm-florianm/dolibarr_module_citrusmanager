@@ -121,35 +121,22 @@ class Citrus extends CommonObject
 
     function update() {
         global $conf;
-        $now=dol_now();
         assert($this->id >= 0);
         $this->db->begin();
-        $sql = 'UPDATE ' . $this->table_name . ' SET
-            ref = \'' . $this->db->escape($this->ref) . '\',
-            label = \'' . $this->db->escape($this->label) . '\'
-            WHERE rowid = ' . $this->id . ';';
-        /*
         $prepSQL = 'UPDATE ' . $this->table_name . ' SET
             ref = ?,
             label = ?
             WHERE rowid = ?;';
-        */
-        //dol_syslog('Citrus::update', LOG_DEBUG);
-        //$prepSQL = $this->db->db->prepare($prepSQL);
-        //$prepSQL->bind_param('ssi', $this->ref, $this->label, $this->id);
-        //if (!$prepSQL->execute()) {
-        //    return -1;
-        //} else {
-        //    return $this->id;
-        //}
-        if ($this->db->query($sql)) {
+        dol_syslog('Citrus::update', LOG_DEBUG);
+        $prepSQL = $this->db->db->prepare($prepSQL);
+        $prepSQL->bind_param('ssi', $this->ref, $this->label, $this->id);
+        if ($prepSQL->execute()) {
             $this->db->commit();
             return 1;
         } else {
             $this->db->rollback();
             return -1;
         }
-
     }
 
     function remove() {
