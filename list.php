@@ -23,8 +23,8 @@ $langs->loadLangs(array('citrusmanager', 'admin'));
 
 $action = GETPOST('action', 'alpha');
 $limit = GETPOST('limit', 'int') ?: $conf->liste_limit;
-$sortfield = GETPOST("sortfield",'alpha') ?: 'citrus.tms';
-$sortorder = GETPOST("sortorder",'alpha') ?: 'DSC';
+$sortfield = GETPOST("sortfield",'alpha') ?: 'citrus.rowid';
+$sortorder = GETPOST("sortorder",'alpha') ?: 'ASC';
 $page = max(0, GETPOST("page",'int') ?: 0);
 $offset = $limit * $page;
 $pageprev = max(0, $page - 1);
