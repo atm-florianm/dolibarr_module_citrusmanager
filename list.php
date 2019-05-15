@@ -46,7 +46,7 @@ if ($action == 'delete') {
 
 
 // surround function: enclose in HTML opening/closing tags
-$surround = function($tag, $contents, $params = []) {
+$surround = function($tag, $contents, $params = array()) {
     $param_list = '';
     foreach ($params as $param => $value) {
         $param_list .= ' ' . $param . '=' . $value;

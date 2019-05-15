@@ -45,9 +45,8 @@ $template_new_citrus_form = <<<HTML
         </tr>
     </table>
     <div align="center">
-        <input type="submit" class="button" value="{T:CreateCitrus}" name="create"/>
-         
-        <input type="submit" class="button" value="{T:Cancel}" name="cancel"/>
+        <input type="submit" class="button" accesskey="s" value="{T:CreateCitrus}" name="create"/>
+        <input type="submit" class="button" accesskey="c" value="{T:Cancel}" name="cancel"/>
     </div>
 </form>
 HTML;
@@ -145,7 +144,7 @@ $show_citrus = function ($editable) use (
                 .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
                 .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
             ),
-            'FORM_BUTTONS?' => '<input type="submit" class="button" value="{T:Save}" name="save"/>',
+            'FORM_BUTTONS?' => '<input type="submit" class="button" accesskey="s" value="{T:Save}" name="save"/>',
             'FORM_END?' => '</form>'
         );
     } else {
@@ -185,30 +184,39 @@ $save_citrus = function ($id = null) use ($db, $object) {
     }
 };
 
-
-// Display the top part of the Dolibarr standard interface (top and left menus)
-llxHeader();
-
-switch ($action) {
-    case 'create':
-        $show_form_create();
-        break;
-    case 'save':
-        $id = GETPOST('id', 'int');
-        $result = $save_citrus($id);
-        if ($result <= 0) {
-            assert(false);
-            exit;
-        }
-        $show_citrus(false);
-        break;
-    case 'edit':
+if (GETPOST('cancel', 'alpha')) {
+    // assume that the 'cancel' parameter is only there if the user was previously editing a card
+    // or creating a new one
+    if (GETPOST('id', 'int')) {
+        // back to card edit form
         $show_citrus(true);
-        break;
-    default:
-        $show_citrus(false);
+    } else {
+        // back to card creation form
+        header('location: list.php');
+    }
+} else {
+    // Display the top part of the Dolibarr standard interface (top and left menus)
+    llxHeader();
+    switch ($action) {
+        case 'create':
+            $show_form_create();
+            break;
+        case 'save':
+            $id = GETPOST('id', 'int');
+            $result = $save_citrus($id);
+            if ($result <= 0) {
+                assert(false);
+                exit;
+            }
+            $show_citrus(false);
+            break;
+        case 'edit':
+            $show_citrus(true);
+            break;
+        default:
+            $show_citrus(false);
+    }
 }
-
 // Display the bottom part of the Dolibarr standard interface (mostly closing tags, except in some specific cases)
 llxFooter();
 
