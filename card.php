@@ -52,12 +52,21 @@ $template_new_citrus_form = <<<HTML
     <colgroup><col width="20%"/><col width="40%"/><col width="40%"/></colgroup>
         <tr>
             <td class="fieldrequired">{T:CitrusRef}</td>
-            <td><input id="citrusref" name="ref" class="flat minwidth100" style="width: 80%" value="" placeholder="{T:CitrusRefShortHint}"/></td>
+            <td><input id="citrusref"
+                   name="ref"
+                   class="flat minwidth100"
+                   style="width: 80%"
+                   value=""
+                   placeholder="{T:CitrusRefShortHint}"/></td>
             <td>{T:CitrusRefHint}</td>
         </tr>
         <tr>
             <td class="fieldrequired">{T:CitrusLabel}</td>
-            <td><input id="citruslabel" name="label" class="flat minwidth100" style="width: 80%" placeholder="{T:CitrusLabelShortHint}"/></td>
+            <td><input id="citruslabel"
+                   name="label"
+                   class="flat minwidth100"
+                   style="width: 80%"
+                   placeholder="{T:CitrusLabelShortHint}"/></td>
             <td>{T:CitrusLabelHint}</td>
         </tr>
     </table>
@@ -140,11 +149,6 @@ $show_citrus = function ($is_in_edit_mode) use (
                 $current_page_with_params(array('id' => $id)), // url
                 $langs->trans('Card'),                    // title
                 'card_tab'                                     // key (ID)
-            ),
-            array(
-                $edit_url,
-                $langs->trans('Modify'),
-                'card_edit_tab'
             )
         ),
         $is_in_edit_mode ? 'card_edit_tab' : 'card_tab',
