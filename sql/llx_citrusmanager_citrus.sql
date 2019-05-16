@@ -21,10 +21,13 @@ CREATE TABLE llx_citrusmanager_citrus(
 	-- reference, e.g. "femminelloIT", "starrubyFR", "starrubyES", "US119PT", …
 	ref           VARCHAR(255),
 
+    -- price (expressed in Dolibarr's pre-configured main currency)
+	price         INTEGER,
+
 	-- entity: ID of company if multi-company is enabled
 	entity        INTEGER DEFAULT 1 NOT NULL,
 
-	-- label, e.g. "Citrus limon “fmminello” (Italia)", "Citrus ×paradisi “Star Ruby” (France, Corsica)", etc.
+	-- label, e.g. "Citrus limon “femminello” (Italia)", "Citrus ×paradisi “Star Ruby” (France, Corsica)", etc.
 	label         VARCHAR(255),
 
 	date_creation DATETIME NOT NULL,

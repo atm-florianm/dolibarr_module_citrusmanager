@@ -60,6 +60,15 @@ $template_new_citrus_form = <<<HTML
             <td><input id="citruslabel" name="label" class="flat minwidth100" style="width: 80%" placeholder="{T:CitrusLabelShortHint}"/></td>
             <td>{T:CitrusLabelHint}</td>
         </tr>
+        <tr>
+            <td class="fieldrequired">{T:CitrusPrice}</td>
+            <td><input id="citrusprice"
+                   name="price"
+                   class="flat minwidth100"
+                   style="width: 80%"
+                   placeholder="{T:CitrusPriceShortHint}"/></td>
+            <td>{T:CitrusPriceHint}</td>
+        </tr>
     </table>
     <div align="center">
         <input type="submit" class="button" accesskey="s" value="{T:CreateCitrus}" name="create"/>
@@ -87,6 +96,10 @@ $template_show_citrus = <<<HTML
     <tr>
         <td class="fieldrequired">{T:CitrusLabel}</td>
         <td>{CITRUS_LABEL}</td>
+    </tr>
+    <tr>
+        <td class="fieldrequired">{T:CitrusPrice}</td>
+        <td>{CITRUS_PRICE}</td>
     </tr>
 </table>
 {FORM_BUTTONS?}
@@ -162,6 +175,7 @@ $show_citrus = function ($is_in_edit_mode) use (
         $template_values = array(
             'CITRUS_REF' => '<input name="ref" value="'. $object->ref .'">',
             'CITRUS_LABEL' => '<textarea name="label" style="width: 85%; height: 5em;">' . $object->label . '</textarea>' . "\n",
+            'CITRUS_PRICE' => '<input name="price" value="' . $object->price . '">',
             'FORM_START?' => (
                 '<form action="' . $current_page . '?action=save"' . ' method="POST">' . "\n"
                 .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
@@ -175,6 +189,7 @@ $show_citrus = function ($is_in_edit_mode) use (
         $template_values = array(
             'CITRUS_REF' => $object->ref,
             'CITRUS_LABEL' => $object->label,
+            'CITRUS_PRICE' => $object->price ?: $langs->trans('Unavailable'),
             'FORM_START?' => '',
             'FORM_BUTTONS?' => '',
             'FORM_END?' => '',
@@ -205,6 +220,7 @@ $show_citrus = function ($is_in_edit_mode) use (
 $save_citrus = function ($id = null) use ($db, $object) {
     $object->ref = GETPOST('ref', 'alpha');
     $object->label = GETPOST('label', 'alpha');
+    $object->price = GETPOST('price', 'int');
     if ($id) {
         $object->id = $id;
         return $object->update();

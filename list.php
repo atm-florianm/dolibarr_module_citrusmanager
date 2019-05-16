@@ -91,6 +91,7 @@ $listSQL = <<<SQL
            citrus.rowid,
            citrus.ref,
            citrus.label,
+           citrus.price,
            citrus.date_creation,
            citrus.tms,
            user.login,
@@ -128,12 +129,22 @@ if ($responseSQL) {
         $sortfield,
         $sortorder
     );
-	print_liste_field_titre(
-	    "Label",
+    print_liste_field_titre(
+        "Label",
         $_SERVER["PHP_SELF"],
         "citrus.label",
         "",
-         $param,
+        $param,
+        'align="left"',
+        $sortfield,
+        $sortorder
+    );
+    print_liste_field_titre(
+        "CitrusPrice",
+        $_SERVER["PHP_SELF"],
+        "citrus.price",
+        "",
+        $param,
         'align="left"',
         $sortfield,
         $sortorder
@@ -172,6 +183,7 @@ if ($responseSQL) {
 		echo '</td>';
 
 		echo $surround('td', $obj->label, array('align' => 'left'));
+        echo $surround('td', $obj->price ?: $langs->trans('Unavailable'), array('align' => 'left'));
         echo $surround('td', $obj->date_creation, array('align' => 'left'));
 		echo "</tr>\n";
 		$i++;
