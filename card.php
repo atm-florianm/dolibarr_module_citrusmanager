@@ -5,6 +5,13 @@ require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/class/citrus.class.php';
 $langs->loadLangs(array('citrusmanager', 'citrus'));
 $action = GETPOST('action', 'alpha');
 
+/**
+ * @param $template string     Template string with some var names in brackets ({VAR} or {T:KEY})
+ * @param $replacements array  Replacements for each VAR
+ * @return string              The filled template: {VAR} inclusions are replaced with dictionary
+ *                             values and {T:KEY} inclusions are replaced with their translation from
+ *                             the $langs object.
+ */
 $template_fill = function ($template, $replacements) use ($langs) {
     $filled_template = $template;
     // Templating: replace some underscore-prefixed names with their dictionary value
@@ -21,6 +28,15 @@ $template_fill = function ($template, $replacements) use ($langs) {
         $filled_template
     );
     return $filled_template;
+};
+
+/**
+ * @param $params array  URL parameters to be appended to the base URL
+ * @return string        The URL of the current PHP page with additional parameters
+ */
+$current_page_with_params = function ($params) {
+    $current_page = $_SERVER['PHP_SELF'];
+    return $current_page . '?' . http_build_query($params);
 };
 
 // Template with the HTML form to be displayed for the user to create new citruses.
