@@ -94,12 +94,6 @@ $template_show_citrus = <<<HTML
 {ACTION_BUTTONS?}
 HTML;
 
-$template_edit_citrus = <<<HTML
-
-HTML;
-
-
-
 // Function that displays the Citrus creation form.
 $show_form_create = function () use ($new_citrus_form) {
     llxHeader();

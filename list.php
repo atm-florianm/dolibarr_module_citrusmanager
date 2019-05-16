@@ -138,8 +138,8 @@ if ($responseSQL) {
         $sortfield,
         $sortorder
     );
-	print_liste_field_titre(
-	    "Date",
+    print_liste_field_titre(
+        "Date",
         $_SERVER['PHP_SELF'],
         'citrus.date_creation',
         '',
@@ -148,7 +148,10 @@ if ($responseSQL) {
         $sortfield,
         $sortorder
     );
-	echo '</tr>', "\n";
+    print_liste_field_titre(
+        "Actions"
+    );
+    echo '</tr>', "\n";
 
     $row_count = $db->num_rows($responseSQL);
     $i = 0;
@@ -173,6 +176,19 @@ if ($responseSQL) {
 
 		echo $surround('td', $obj->label, array('align' => 'left'));
         echo $surround('td', $obj->date_creation, array('align' => 'left'));
+        echo $surround(
+            'td',
+            $surround(
+                'a',
+                img_edit(),
+                array('href' => 'card.php?id=' . $obj->rowid . '&action=edit')
+            ) . $surround(
+                'a',
+                img_delete(),
+                array('href' => 'card.php?id=' . $obj->rowid . '&action=delete')
+            ),
+            array()
+        );
 		echo "</tr>\n";
 		$i++;
 	}
