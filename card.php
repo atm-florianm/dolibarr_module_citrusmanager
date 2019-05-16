@@ -4,6 +4,7 @@ require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/class/citrus.class.php';
 
 $langs->loadLangs(array('citrusmanager', 'citrus'));
 $action = GETPOST('action', 'alpha');
+$list_view_url = 'list.php';
 
 /**
  * @param $template string     Template string with some var names in brackets ({VAR} or {T:KEY})
@@ -41,7 +42,7 @@ $current_page_with_params = function ($params) {
 
 // Template with the HTML form to be displayed for the user to create new citruses.
 $template_new_citrus_form = <<<HTML
-<form action="{SELF}?action=save" method="POST" enctype="multipart/form-data">
+<form action="{SAVE_URL}" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="token" value="{NEW_SESSION_TOKEN}" />
     {FICHE_TITRE}
     <div>
@@ -70,7 +71,7 @@ HTML;
 $new_citrus_form = $template_fill(
     $template_new_citrus_form,
     array(
-        'SELF'              => $_SERVER['PHP_SELF'],
+        'SAVE_URL'          => $current_page_with_params(array('action' => 'save')),
         'NEW_SESSION_TOKEN' => $_SESSION['newtoken'],
         'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus'))
     )
@@ -90,6 +91,7 @@ $template_show_citrus = <<<HTML
 </table>
 {FORM_BUTTONS?}
 {FORM_END?}
+{ACTION_BUTTONS?}
 HTML;
 
 $template_edit_citrus = <<<HTML
@@ -100,6 +102,7 @@ HTML;
 
 // Function that displays the Citrus creation form.
 $show_form_create = function () use ($new_citrus_form) {
+    llxHeader();
     echo $new_citrus_form;
 };
 
@@ -107,16 +110,18 @@ $show_form_create = function () use ($new_citrus_form) {
 $object = new Citrus($db);
 
 /**
- * @param $editable boolean  Whether to show the citrus as a read-only display or as an edit form
+ * @param $is_in_edit_mode boolean  Whether to show the citrus as a read-only display or as an edit form
  */
-$show_citrus = function ($editable) use (
+$show_citrus = function ($is_in_edit_mode) use (
     $db,
     $object,
     $langs,
     $template_fill,
+    $current_page_with_params,
     $template_show_citrus,
     $template_edit_citrus
 ) {
+    llxHeader();
     $id = GETPOST('id', 'int');
     if ($id <= 0) {
         // invalid ID passed by POST or GET
@@ -133,25 +138,27 @@ $show_citrus = function ($editable) use (
         return;
     }
     $current_page = $_SERVER['PHP_SELF'];
+    $edit_url = $current_page_with_params(array('id' => $id, 'action' => 'edit'));
+    $confirm_before_delete_url = $current_page_with_params(array('id' => $id, 'action' => 'confirm_before_delete'));
     dol_fiche_head(
         array( // describes the available tab links
             array(
-                $current_page.'?'.http_build_query(array('id' => $id)), // url
-                $langs->trans('Card'),                             // title
-                'card_tab'                                              // key (ID)
+                $current_page_with_params(array('id' => $id)), // url
+                $langs->trans('Card'),                    // title
+                'card_tab'                                     // key (ID)
             ),
             array(
-                $current_page.'?'.http_build_query(array('id' => $id, 'action' => 'edit')),
+                $edit_url,
                 $langs->trans('Modify'),
                 'card_edit_tab'
             )
         ),
-        $editable ? 'card_edit_tab' : 'card_tab',
+        $is_in_edit_mode ? 'card_edit_tab' : 'card_tab',
         $langs->trans('CitrusCard'),
         -1,
         'citrus@citrusmanager'
     );
-    if ($editable) {
+    if ($is_in_edit_mode) {
         $template_values = array(
             'CITRUS_REF' => '<input name="ref" value="'. $object->ref .'">',
             'CITRUS_LABEL' => '<textarea name="label" style="width: 85%; height: 5em;">' . $object->label . '</textarea>' . "\n",
@@ -161,7 +168,8 @@ $show_citrus = function ($editable) use (
                 .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
             ),
             'FORM_BUTTONS?' => '<input type="submit" class="button" accesskey="s" value="{T:Save}" name="save"/>',
-            'FORM_END?' => '</form>'
+            'FORM_END?' => '</form>',
+            'ACTION_BUTTONS?' => ''
         );
     } else {
         $template_values = array(
@@ -169,7 +177,12 @@ $show_citrus = function ($editable) use (
             'CITRUS_LABEL' => $object->label,
             'FORM_START?' => '',
             'FORM_BUTTONS?' => '',
-            'FORM_END?' => ''
+            'FORM_END?' => '',
+            'ACTION_BUTTONS?' => '
+                <div class="tabsAction">
+                    <a href="'. $edit_url . '" class="butAction">' . $langs->trans('Modify') . '</a>
+                    <a href="'. $confirm_before_delete_url . '" class="butActionDelete">' . $langs->trans('Delete') . '</a>
+                </div>'
         );
     }
 
@@ -208,11 +221,9 @@ if (GETPOST('cancel', 'alpha')) {
         $show_citrus(true);
     } else {
         // back to card creation form
-        header('location: list.php');
+        header('location: ' . $list_view_url);
     }
 } else {
-    // Display the top part of the Dolibarr standard interface (top and left menus)
-    llxHeader();
     switch ($action) {
         case 'create':
             $show_form_create();
@@ -228,6 +239,13 @@ if (GETPOST('cancel', 'alpha')) {
             break;
         case 'edit':
             $show_citrus(true);
+            break;
+        case 'confirm_before_delete':
+            $do_delete_url = $current_page_with_params(array('id' => $id, 'action' => 'do_delete'));
+            //
+            break;
+        case 'do_delete':
+            //
             break;
         default:
             $show_citrus(false);
