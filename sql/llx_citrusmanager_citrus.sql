@@ -22,7 +22,7 @@ CREATE TABLE llx_citrusmanager_citrus(
 	ref           VARCHAR(255),
 
     -- price (expressed in Dolibarr's pre-configured main currency)
-	price         INTEGER,
+	price         FLOAT,
 
 	-- entity: ID of company if multi-company is enabled
 	entity        INTEGER DEFAULT 1 NOT NULL,

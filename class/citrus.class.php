@@ -17,9 +17,25 @@ class Citrus extends CommonObject
      * @var $db DoliDB  Database handle
      */
     public $db;
+
+    /**
+     * @var int
+     */
     public $id;
+
+    /**
+     * @var string
+     */
     public $ref;
+
+    /**
+     * @var string
+     */
     public $label;
+
+    /**
+     * @var float
+     */
     public $price;
     public $date_creation;
     public $tms;
@@ -135,7 +151,7 @@ class Citrus extends CommonObject
             WHERE rowid = ?;';
         dol_syslog('Citrus::update', LOG_DEBUG);
         $prepSQL = $this->db->db->prepare($prepSQL);
-        $prepSQL->bind_param('ssii', $this->ref, $this->label, $this->price, $this->id);
+        $prepSQL->bind_param('ssdi', $this->ref, $this->label, $this->price, $this->id);
         if ($prepSQL->execute()) {
             $this->db->commit();
             return 1;
