@@ -20,6 +20,7 @@ class Citrus extends CommonObject
     public $id;
     public $ref;
     public $label;
+    public $price;
     public $date_creation;
     public $tms;
     public $import_key;
@@ -48,6 +49,7 @@ class Citrus extends CommonObject
                     rowid,
                     ref, 
                     label,
+                    price,
                     date_creation,
                     tms,
                     import_key, 
@@ -69,6 +71,7 @@ class Citrus extends CommonObject
                     'id',
 					'ref',
 					'label',
+					'price',
 					'date_creation',
 					'tms',
 					'import_key',
@@ -90,11 +93,13 @@ class Citrus extends CommonObject
         $sql = 'INSERT INTO ' . $this->table_name . ' (
             ref,
             label,
+            price,
             date_creation
         ) VALUES (
             ' .
             "'" . $this->db->escape($this->ref) . "'" . ', ' .
             "'" . $this->db->escape($this->label). "'" . ', ' .
+            "'" . $this->db->escape($this->price). "'" . ', ' .
             "'" . $this->db->idate($now) . "'" .
         ');';
         dol_syslog('Citrus::create', LOG_DEBUG);
@@ -125,11 +130,12 @@ class Citrus extends CommonObject
         $this->db->begin();
         $prepSQL = 'UPDATE ' . $this->table_name . ' SET
             ref = ?,
-            label = ?
+            label = ?,
+            price = ?
             WHERE rowid = ?;';
         dol_syslog('Citrus::update', LOG_DEBUG);
         $prepSQL = $this->db->db->prepare($prepSQL);
-        $prepSQL->bind_param('ssi', $this->ref, $this->label, $this->id);
+        $prepSQL->bind_param('ssii', $this->ref, $this->label, $this->price, $this->id);
         if ($prepSQL->execute()) {
             $this->db->commit();
             return 1;

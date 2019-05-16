@@ -30,9 +30,16 @@ CitrusLabel = Nom complet de l’agrume
 CitrusLabelShortHint = Nom complet
 CitrusLabelHint = Libellé de votre agrume (par exemple <i>"Citrus sinensis var. ‘Washington Navel’; PG = Citrus aurantium"</i>)
 
+CitrusPrice = Prix
+CitrusPriceShortHint = 0
+CitrusPriceHint = Prix de votre agrume (exprimé dans la devise principale configurée dans Dolibarr)
+
+CreateCitrus = Créer l’agrume
+
 DeleteCitrus = Supprimer l’agrume
 DeleteCitrusAskForConfirmation = Êtes-vous sûr de vouloir supprimer cet agrume ?
 
+Unavailable = N/A
 
 # Module label 'ModuleCitrusmanagerName'
 ModuleCitrusmanagerName = Citrusmanager
