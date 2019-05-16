@@ -30,6 +30,10 @@ CitrusLabel = Nom complet de l’agrume
 CitrusLabelShortHint = Nom complet
 CitrusLabelHint = Libellé de votre agrume (par exemple <i>"Citrus sinensis var. ‘Washington Navel’; PG = Citrus aurantium"</i>)
 
+DeleteCitrus = Supprimer l’agrume
+DeleteCitrusAskForConfirmation = Êtes-vous sûr de vouloir supprimer cet agrume ?
+
+
 # Module label 'ModuleCitrusmanagerName'
 ModuleCitrusmanagerName = Citrusmanager
 # Module description 'ModuleCitrusmanagerDesc'

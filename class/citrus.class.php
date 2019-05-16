@@ -140,9 +140,8 @@ class Citrus extends CommonObject
     }
 
     function remove() {
-        $sql  = 'DELETE FROM' . $this->table_name . ' WHERE rowid = ' . $this->id . ';';
-
-        dol_syslog("Bookmark::remove", LOG_DEBUG);
+        $sql  = 'DELETE FROM ' . $this->table_name . ' WHERE rowid = ' . $this->id . ';';
+        dol_syslog("Citrus::remove", LOG_DEBUG);
         $resql=$this->db->query($sql);
         if ($resql)
         {
