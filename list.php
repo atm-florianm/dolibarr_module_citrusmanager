@@ -36,10 +36,6 @@ $id = GETPOST("id",'int');
  * Actions
  */
 
-if ($action == 'delete') {
-}
-
-
 /*
  * View
  */

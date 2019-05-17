@@ -134,8 +134,7 @@ $show_citrus = function ($is_in_edit_mode) use (
     $langs,
     $template_fill,
     $current_page_with_params,
-    $template_show_citrus,
-    $template_edit_citrus
+    $template_show_citrus
 ) {
     llxHeader();
     $id = GETPOST('id', 'int');
