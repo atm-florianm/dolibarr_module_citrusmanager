@@ -41,6 +41,9 @@ DeleteCitrusAskForConfirmation = Êtes-vous sûr de vouloir supprimer cet agrume
 
 Unavailable = N/A
 
+CitrusDictCategories = Dictionnaire des catégories d’agrumes
+
+
 # Module label 'ModuleCitrusmanagerName'
 ModuleCitrusmanagerName = Citrusmanager
 # Module description 'ModuleCitrusmanagerDesc'

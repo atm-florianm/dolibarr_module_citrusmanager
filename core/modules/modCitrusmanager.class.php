@@ -168,7 +168,25 @@ class modCitrusmanager extends DolibarrModules
 
 
         // Dictionaries
-		$this->dictionaries=array();
+        $dict_table_name = MAIN_DB_PREFIX . 'c_citrus_category';
+		$this->dictionaries=array(
+		    'langs' => 'citrusmanager@citrusmanager',
+            'tabname' => array($dict_table_name),
+            'tablib' => array('CitrusDictCategories'),
+            'tabsql' => array('SELECT
+                                    dict.rowid,
+                                    dict.ref,
+                                    dict.note,
+                                    dict.active
+                               FROM ' . $dict_table_name . ' as dict'
+            ),
+            'tabsqlsort' => array('ref ASC'),
+            'tabfield' => array('ref,note'),
+            'tabfieldvalue' => array('ref,note'),
+            'tabfieldinsert' => array('ref,note'),
+            'tabrowid' => array('rowid'),
+            'tabcond' => array($conf->citrusmanager->enabled)
+       );
         /* Example:
         $this->dictionaries=array(
             'langs'=>'mylangfile@citrusmanager',
