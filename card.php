@@ -1,6 +1,7 @@
 <?php
 require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/class/citrus.class.php';
+require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/class/citrus_categories.class.php';
 
 $langs->loadLangs(array('citrusmanager', 'citrus'));
 $action = GETPOST('action', 'alpha');
@@ -78,6 +79,12 @@ $template_new_citrus_form = <<<HTML
                    placeholder="{T:CitrusPriceShortHint}"/></td>
             <td>{T:CitrusPriceHint}</td>
         </tr>
+            <td class="">{T:CitrusCategories}</td>
+            <td>
+                {CATEGORIES}
+            </td>
+        <tr>
+</tr>
     </table>
     <div align="center">
         <input type="submit" class="button" accesskey="s" value="{T:CreateCitrus}" name="create"/>
@@ -86,12 +93,16 @@ $template_new_citrus_form = <<<HTML
 </form>
 HTML;
 
+$form = new Form($db);
+$categoriesDAO = new CitrusCategories($db);
+$allCategories = $categoriesDAO->fetchAll();
 $new_citrus_form = $template_fill(
     $template_new_citrus_form,
     array(
         'SAVE_URL'          => $current_page_with_params(array('action' => 'save')),
         'NEW_SESSION_TOKEN' => $_SESSION['newtoken'],
-        'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus'))
+        'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus')),
+        'CATEGORIES'        => $form->multiselectarray('categories', $allCategories)
     )
 );
 
@@ -109,6 +120,10 @@ $template_show_citrus = <<<HTML
     <tr>
         <td class="fieldrequired">{T:CitrusPrice}</td>
         <td>{CITRUS_PRICE}</td>
+    </tr>
+    <tr>
+        <td class="">{T:CitrusCategories}</td>
+        <td>{CATEGORIES}</td>
     </tr>
 </table>
 {FORM_BUTTONS?}
@@ -134,7 +149,9 @@ $show_citrus = function ($is_in_edit_mode) use (
     $langs,
     $template_fill,
     $current_page_with_params,
-    $template_show_citrus
+    $template_show_citrus,
+    $form,
+    $allCategories
 ) {
     llxHeader();
     $id = GETPOST('id', 'int');
@@ -178,6 +195,14 @@ $show_citrus = function ($is_in_edit_mode) use (
                 .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
                 .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
             ),
+            'CATEGORIES' => $form->multiselectarray(
+                'categories',
+                $allCategories,
+                array_keys($object->categories),
+                0,
+                0,
+                'minwidth100' // n’a aucun effet :-(
+            ),
             'FORM_BUTTONS?' => '<input type="submit" class="button" accesskey="s" value="{T:Save}" name="save"/>',
             'FORM_END?' => '</form>',
             'ACTION_BUTTONS?' => ''
@@ -188,6 +213,21 @@ $show_citrus = function ($is_in_edit_mode) use (
             'CITRUS_LABEL' => $object->label,
             'CITRUS_PRICE' => $object->price ?: $langs->trans('Unavailable'),
             'FORM_START?' => '',
+            'CATEGORIES' => '<div class="select2-container-multi-dolibarr">
+                <ul class="select2-choices-dolibarr">' . implode(
+                '',
+                array_map(
+                    function($value) {
+                        return '<li 
+                                class="select2-search-choice-dolibarr noborderoncategories"
+                                style="background: #454545; padding: 0.3em;">'
+                            .'<img src="/theme/eldy/img/object_category.png" alt="" class="inline-block">'
+                            .'<span class="categtextwhite">'
+                            . dol_htmlentities($value) . '</span></li>';
+                    },
+                    $object->categories
+                )
+            ) . '</ul></div>',
             'FORM_BUTTONS?' => '',
             'FORM_END?' => '',
             'ACTION_BUTTONS?' => '
@@ -218,6 +258,7 @@ $save_citrus = function ($id = null) use ($db, $object) {
     $object->ref = GETPOST('ref', 'alpha');
     $object->label = GETPOST('label', 'alpha');
     $object->price = GETPOST('price', 'int');
+    $object->categories = GETPOST('categories', 'array');
     if ($id) {
         $object->id = $id;
         return $object->update();

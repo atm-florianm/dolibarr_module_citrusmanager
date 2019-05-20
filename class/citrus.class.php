@@ -2,6 +2,7 @@
 /*
  *
  */
+require_once('citrus_categories.class.php');
 
 class Citrus extends CommonObject
 {
@@ -42,6 +43,11 @@ class Citrus extends CommonObject
     public $import_key;
     public $fk_user_creat;
     public $fk_user_modif;
+
+    /**
+     * @var array|int
+     */
+    public $categories;
 
     function __construct($db) {
         $this->db = $db;
@@ -95,6 +101,10 @@ class Citrus extends CommonObject
 					'fk_user_modif')
             );
             $this->db->free($responseSQL);
+
+            // fetch associated categories
+            $categoriesDAO = new CitrusCategories($this->db);
+            $this->categories = $categoriesDAO->fetchAllByCitrusId($this->id);
             return $this->id;
         } else {
             dol_print_error($this->db);
@@ -123,8 +133,11 @@ class Citrus extends CommonObject
         if ($responseSQL) {
             $id = $this->db->last_insert_id($this->table_name);
             if ($id > 0) {
-                $this->db->commit();
                 $this->id = $id;
+                $categoriesDAO = new CitrusCategories($this->db);
+                $categoriesDAO->dissociateAllByCitrusId($this->id);
+                $categoriesDAO->associate($this->id, $this->categories);
+                $this->db->commit();
                 return $id;
             } else {
                 $this->error = $this->db->lasterror();
@@ -154,6 +167,11 @@ class Citrus extends CommonObject
         $prepSQL->bind_param('ssdi', $this->ref, $this->label, $this->price, $this->id);
         if ($prepSQL->execute()) {
             $this->db->commit();
+            $this->db->begin();
+            $categoriesDAO = new CitrusCategories($this->db);
+            $categoriesDAO->dissociateAllByCitrusId($this->id);
+            $categoriesDAO->associate($this->id, $this->categories);
+            $this->db->commit();
             return 1;
         } else {
             $this->db->rollback();
@@ -167,6 +185,8 @@ class Citrus extends CommonObject
         $resql=$this->db->query($sql);
         if ($resql)
         {
+            $categoriesDAO = new CitrusCategories($this->db);
+            $categoriesDAO->dissociateAllByCitrusId($this->id);
             return 1;
         }
         else
