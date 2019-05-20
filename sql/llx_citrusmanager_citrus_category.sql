@@ -16,5 +16,9 @@
 CREATE TABLE llx_citrusmanager_citrus_category(
 	rowid                   INTEGER AUTO_INCREMENT PRIMARY KEY,
 	fk_c_citrus_category    INTEGER,
-	fk_citrusmanager_citrus INTEGER
+	fk_citrusmanager_citrus INTEGER,
+
+    FOREIGN KEY (fk_c_citrus_category) REFERENCES llx_c_citrus_category(rowid) ON DELETE CASCADE,
+    FOREIGN KEY (fk_citrusmanager_citrus) REFERENCES llx_citrusmanager_citrus(rowid) ON DELETE CASCADE,
+    UNIQUE KEY (fk_c_citrus_category, fk_citrusmanager_citrus)
 ) ENGINE=innodb;

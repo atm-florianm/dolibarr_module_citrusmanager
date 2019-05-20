@@ -101,16 +101,14 @@ class CitrusCategories extends CommonObject
     function dissociateAllByCitrusId($citrusId)
     {
         assert(is_num($citrusId), 'CitrusID has to be numeric.');
-        $sql = 'DELETE FROM ' . $this->liaison_table_name . ' as assoc
-                WHERE assoc.fk_citrusmanager_citrus = ' . $citrusId . ';';
+        $sql = 'DELETE FROM ' . $this->liaison_table_name . ' WHERE fk_citrusmanager_citrus = ' . $citrusId . ';';
         $this->db->query($sql);
     }
 
     function dissociateAllByCategoryId($categoryId)
     {
         assert(is_num($categoryId), 'CategoryId has to be numeric.');
-        $sql = 'DELETE FROM ' . $this->liaison_table_name . ' as assoc
-                WHERE assoc.fk_c_citrus_category = ' . $categoryId . ';';
+        $sql = 'DELETE FROM ' . $this->liaison_table_name . ' WHERE fk_c_citrus_category = ' . $categoryId . ';';
         $this->db->query($sql);
     }
 
