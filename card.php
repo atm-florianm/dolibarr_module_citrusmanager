@@ -46,9 +46,12 @@ $template_new_citrus_form = <<<HTML
                    placeholder="{T:CitrusPriceShortHint}"/></td>
             <td>{T:CitrusPriceHint}</td>
         </tr>
-            <td class="">{T:CitrusCategories}</td>
+            <td class="">{T:CitrusCategory}</td>
             <td>
-                {CATEGORIES}
+                {CATEGORY}
+            </td>
+            <td>
+                {T:CitrusCategoryHint}
             </td>
         <tr>
 </tr>
@@ -72,7 +75,7 @@ $new_citrus_form = $template_fill(
         'SAVE_URL'          => $current_page_with_params(array('action' => 'save')),
         'NEW_SESSION_TOKEN' => $_SESSION['newtoken'],
         'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus')),
-        'CATEGORIES'        => $form->selectarray(
+        'CATEGORY'        => $form->selectarray(
             'category',
             $allCategories,
             0
@@ -96,8 +99,8 @@ $template_show_citrus = <<<HTML
         <td>{CITRUS_PRICE}</td>
     </tr>
     <tr>
-        <td class="">{T:CitrusCategories}</td>
-        <td>{CATEGORIES}</td>
+        <td class="">{T:CitrusCategory}</td>
+        <td>{CATEGORY}</td>
     </tr>
 </table>
 {FORM_BUTTONS?}
@@ -169,7 +172,7 @@ $show_citrus = function ($is_in_edit_mode) use (
                 .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
                 .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
             ),
-            'CATEGORIES' => $form->selectarray(
+            'CATEGORY' => $form->selectarray(
                 'category',
                 $allCategories,
                 $object->categoryId
@@ -184,7 +187,7 @@ $show_citrus = function ($is_in_edit_mode) use (
             'CITRUS_LABEL' => $object->label,
             'CITRUS_PRICE' => $object->price ?: $langs->trans('Unavailable'),
             'FORM_START?' => '',
-            'CATEGORIES' => '<div class="select2-container-multi-dolibarr">
+            'CATEGORY' => '<div class="select2-container-multi-dolibarr">
                 <ul class="select2-choices-dolibarr">
                 <li class="select2-search-choice-dolibarr noborderoncategories"
                                 style="background: #454545; padding: 0.3em;">

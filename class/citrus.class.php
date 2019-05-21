@@ -129,7 +129,6 @@ class Citrus extends CommonObject
             ?,
             ? );';
         $prepSQL = $this->db->db->prepare($prepSQL);
-        var_export($prepSQL);
         $prepSQL->bind_param(
             'ssdii',
             $this->db->escape($this->ref),

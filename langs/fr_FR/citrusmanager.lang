@@ -42,7 +42,8 @@ DeleteCitrusAskForConfirmation = Êtes-vous sûr de vouloir supprimer cet agrume
 Unavailable = N/A
 
 CitrusDictCategories = Dictionnaire des catégories d’agrumes
-CitrusCategories = Catégories
+CitrusCategory = Catégorie
+CitrusCategoryHint = Catégorie de l’agrume (la liste est configurable dans <span style="border-radius: 0.2em; padding: 0.1em 0.3em; background: #ffc5c5">Accueil → Configuration → Dictionnaires → Dictionnaire des catégories d’agrumes</span>)
 
 
 # Module label 'ModuleCitrusmanagerName'
