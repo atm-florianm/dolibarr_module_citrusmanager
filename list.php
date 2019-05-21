@@ -17,6 +17,7 @@
 
 require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT . '/custom/citrusmanager/class/citrus.class.php';
+require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/lib/citrusmanager.lib.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array('citrusmanager', 'admin'));

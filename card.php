@@ -2,44 +2,11 @@
 require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/class/citrus.class.php';
 require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/class/citrus_categories.class.php';
+require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/lib/citrusmanager.lib.php';
 
 $langs->loadLangs(array('citrusmanager', 'citrus'));
 $action = GETPOST('action', 'alpha');
 $list_view_url = 'list.php';
-
-/**
- * @param $template string     Template string with some var names in brackets ({VAR} or {T:KEY})
- * @param $replacements array  Replacements for each VAR
- * @return string              The filled template: {VAR} inclusions are replaced with dictionary
- *                             values and {T:KEY} inclusions are replaced with their translation from
- *                             the $langs object.
- */
-$template_fill = function ($template, $replacements) use ($langs) {
-    $filled_template = $template;
-    // Templating: replace some underscore-prefixed names with their dictionary value
-    foreach ($replacements as $key => $val) {
-        $filled_template = str_replace('{' . $key . '}', $val, $filled_template);
-    }
-
-    // Templating: replace "{ABC}" with $langs->trans("ABC")
-    $filled_template = preg_replace_callback(
-        '/\{T:(\w+)}/',
-        function($matches) use ($langs) {
-            return $langs->trans($matches[1]);
-        },
-        $filled_template
-    );
-    return $filled_template;
-};
-
-/**
- * @param $params array  URL parameters to be appended to the base URL
- * @return string        The URL of the current PHP page with additional parameters
- */
-$current_page_with_params = function ($params) {
-    $current_page = $_SERVER['PHP_SELF'];
-    return $current_page . '?' . http_build_query($params);
-};
 
 // Template with the HTML form to be displayed for the user to create new citruses.
 $template_new_citrus_form = <<<HTML
