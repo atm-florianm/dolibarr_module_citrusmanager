@@ -62,14 +62,21 @@ HTML;
 
 $form = new Form($db);
 $categoriesDAO = new CitrusCategories($db);
-$allCategories = $categoriesDAO->fetchAll();
+
+// by default, use empty category (ID 0)
+$allCategories = array(0 => '');
+$allCategories = array_merge($allCategories, $categoriesDAO->fetchAll());
 $new_citrus_form = $template_fill(
     $template_new_citrus_form,
     array(
         'SAVE_URL'          => $current_page_with_params(array('action' => 'save')),
         'NEW_SESSION_TOKEN' => $_SESSION['newtoken'],
         'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus')),
-        'CATEGORIES'        => $form->multiselectarray('categories', $allCategories)
+        'CATEGORIES'        => $form->selectarray(
+            'category',
+            $allCategories,
+            0
+        )
     )
 );
 
@@ -162,13 +169,10 @@ $show_citrus = function ($is_in_edit_mode) use (
                 .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
                 .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
             ),
-            'CATEGORIES' => $form->multiselectarray(
-                'categories',
+            'CATEGORIES' => $form->selectarray(
+                'category',
                 $allCategories,
-                array_keys($object->categories),
-                0,
-                0,
-                'minwidth100' // n’a aucun effet :-(
+                $object->categoryId
             ),
             'FORM_BUTTONS?' => '<input type="submit" class="button" accesskey="s" value="{T:Save}" name="save"/>',
             'FORM_END?' => '</form>',
@@ -181,20 +185,11 @@ $show_citrus = function ($is_in_edit_mode) use (
             'CITRUS_PRICE' => $object->price ?: $langs->trans('Unavailable'),
             'FORM_START?' => '',
             'CATEGORIES' => '<div class="select2-container-multi-dolibarr">
-                <ul class="select2-choices-dolibarr">' . implode(
-                '',
-                array_map(
-                    function($value) {
-                        return '<li 
-                                class="select2-search-choice-dolibarr noborderoncategories"
-                                style="background: #454545; padding: 0.3em;">'
-                            .'<img src="/theme/eldy/img/object_category.png" alt="" class="inline-block">'
-                            .'<span class="categtextwhite">'
-                            . dol_htmlentities($value) . '</span></li>';
-                    },
-                    $object->categories
-                )
-            ) . '</ul></div>',
+                <ul class="select2-choices-dolibarr">
+                <li class="select2-search-choice-dolibarr noborderoncategories"
+                                style="background: #454545; padding: 0.3em;">
+                     <img src="/theme/eldy/img/object_category.png" alt="" class="inline-block">
+                            <span class="categtextwhite"> ' . dol_htmlentities($allCategories[$object->categoryId]) . '</span></li></ul>',
             'FORM_BUTTONS?' => '',
             'FORM_END?' => '',
             'ACTION_BUTTONS?' => '
@@ -225,7 +220,7 @@ $save_citrus = function ($id = null) use ($db, $object) {
     $object->ref = GETPOST('ref', 'alpha');
     $object->label = GETPOST('label', 'alpha');
     $object->price = GETPOST('price', 'int');
-    $object->categories = GETPOST('categories', 'array');
+    $object->categoryId = GETPOST('category', 'int');
     if ($id) {
         $object->id = $id;
         return $object->update();

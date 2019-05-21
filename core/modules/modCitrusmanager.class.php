@@ -171,20 +171,30 @@ class modCitrusmanager extends DolibarrModules
         $dict_table_name = MAIN_DB_PREFIX . 'c_citrus_category';
 		$this->dictionaries=array(
 		    'langs' => 'citrusmanager@citrusmanager',
+            // tabname = name of the dictionary table
             'tabname' => array($dict_table_name),
+            // tablib = label of the dictionary
             'tablib' => array('CitrusDictCategories'),
+            // tabsql = SELECT statement returning the fields to be displayed
             'tabsql' => array('SELECT
                                     dict.rowid,
                                     dict.ref,
                                     dict.note,
+                                    dict.default_price,
                                     dict.active
                                FROM ' . $dict_table_name . ' as dict'
             ),
+            // tabsqlsort = SQL fragment for SELECT sorting
             'tabsqlsort' => array('ref ASC'),
-            'tabfield' => array('ref,note'),
-            'tabfieldvalue' => array('ref,note'),
-            'tabfieldinsert' => array('ref,note'),
+            // tabfield = comma-separated field names from the SQL table that should be editable
+            'tabfield' => array('ref,note,default_price'),
+            // tabfieldvalue = comma-separated field names (??)
+            'tabfieldvalue' => array('ref,note,default_price'),
+            // tabfieldinsert = comma-separated field names
+            'tabfieldinsert' => array('ref,note,default_price'),
+            // tabrowid = field name of the row ID field (usually 'rowid')
             'tabrowid' => array('rowid'),
+            // condition for the dictionary to be listed
             'tabcond' => array($conf->citrusmanager->enabled)
        );
         /* Example:

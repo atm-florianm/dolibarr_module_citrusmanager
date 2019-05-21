@@ -22,6 +22,9 @@ CREATE TABLE llx_c_citrus_category(
 	-- note
 	note          VARCHAR(1024),
 
+	-- default price
+	default_price FLOAT,
+
     -- ??
     active        TINYINT(4)
 ) ENGINE=innodb;

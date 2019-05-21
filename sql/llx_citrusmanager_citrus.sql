@@ -30,6 +30,9 @@ CREATE TABLE llx_citrusmanager_citrus(
 	-- label, e.g. "Citrus limon “femminello” (Italia)", "Citrus ×paradisi “Star Ruby” (France, Corsica)", etc.
 	label         VARCHAR(255),
 
+	-- category, e.g. "sour", "sweet"
+	fk_category   INTEGER,
+
 	date_creation DATETIME NOT NULL,
 	tms           TIMESTAMP NOT NULL,
 	import_key    VARCHAR(14),
@@ -39,6 +42,7 @@ CREATE TABLE llx_citrusmanager_citrus(
 	fk_user_modif INTEGER,
 
 	INDEX idx_citrusmanager_citrus (ref),
+	FOREIGN KEY (fk_category)   REFERENCES llx_c_citrus_category(rowid) ON DELETE CASCADE,
 	FOREIGN KEY (fk_user_modif) REFERENCES llx_user(rowid) ON DELETE CASCADE,
 	FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid) ON DELETE CASCADE
 	-- END MODULEBUILDER FIELDS
