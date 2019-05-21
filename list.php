@@ -137,6 +137,16 @@ if ($responseSQL) {
 	$param = "";
 	echo '<div class="div-table-responsive">', "\n";
 	echo '<table class="tagtable liste">', "\n";
+
+	echo '<tr class="liste_titre_filter">', "\n";
+
+	// TODO: display filter inputs
+    // TODO: enable user to choose what columns they want
+    // TODO: enable mass actions rather than individual actions
+
+
+	echo '</tr>', "\n";
+
 	echo '<tr class="liste_titre">', "\n";
 
 	print_liste_field_titre(
