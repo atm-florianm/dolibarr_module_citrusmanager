@@ -74,6 +74,8 @@ $now=dol_now();
 $form = new Form($db);
 $formfile = new FormFile($db);
 
+header('Location: list.php');
+
 llxHeader("",$langs->trans("CitrusmanagerArea"));
 
 print load_fiche_titre($langs->trans("CitrusmanagerArea"),'','citrusmanager.png@citrusmanager');

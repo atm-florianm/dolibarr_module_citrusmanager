@@ -147,7 +147,7 @@ $show_citrus = function ($is_in_edit_mode) use (
                 'card_tab'                                     // key (ID)
             )
         ),
-        $is_in_edit_mode ? 'card_edit_tab' : 'card_tab',
+        'card_tab',
         $langs->trans('CitrusCard'),
         -1,
         'citrus@citrusmanager'
