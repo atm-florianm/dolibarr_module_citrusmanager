@@ -68,20 +68,16 @@ $new_card_btn  = $surround('a',
 
 llxHeader('', $langs->trans('CitrusList'));
 
-print_barre_liste(
-    $langs->trans("CitrusList"),
-    $page,
-    $_SERVER['PHP_SELF'],
-    $param,
-    $sortfield,
-    $sortorder,
-    '',
-    -1,
-    '',
-    'title_generic.png',
-    0,
-    $new_card_btn
-);
+
+
+$countSQL = <<<SQL
+    SELECT COUNT(citrus.rowid)
+    FROM llx_citrusmanager_citrus as citrus
+    LEFT JOIN llx_user as user
+    ON citrus.fk_user_creat = user.rowid
+    AND citrus.entity = __CONF_ENTITY__
+SQL;
+$countSQL = $template_fill($countSQL, array('CONF_ENTITY' => $conf->entity));
 
 $listSQL = <<<SQL
     SELECT 
@@ -100,17 +96,44 @@ $listSQL = <<<SQL
     AND citrus.entity = __CONF_ENTITY__
 SQL;
 
-$listSQL = str_replace('__CONF_ENTITY__', $conf->entity, $listSQL);
+$listSQL = $template_fill($listSQL, array('CONF_ENTITY' => $conf->entity));
 $listSQL .= $db->order($sortfield, $sortorder);
 $listSQL .= $db->plimit($limit, $offset);
 
 //if (! $user->admin) $listSQL .= " AND (b.fk_user = ".$user->id." OR b.fk_user is NULL OR b.fk_user = 0)";
 
+$responseCountSQL = $db->query($countSQL);
+$count_field_name = 'COUNT(citrus.rowid)';
+$total_row_count = $db->fetch_object($responseCountSQL)->$count_field_name;
+
 $responseSQL = $db->query($listSQL);
-
-
+$db->free($responseCountSQL);
 
 if ($responseSQL) {
+    $page = "$page";
+    $varexp = array(
+        'page' => $page,
+        'param' => $param,
+        'sortfield' => $sortfield,
+        'sortorder' => $sortorder,
+        'num' => $db->num_rows($responseSQL),
+        'totalnboflines' => $total_row_count
+    );
+    print_barre_liste(
+        $langs->trans("CitrusList"),
+        $page,
+        $_SERVER['PHP_SELF'],
+        $param,
+        $sortfield,
+        $sortorder,
+        '',
+        $db->num_rows($responseSQL)+1,
+        $total_row_count,
+        'title_generic.png',
+        0,
+        $new_card_btn
+    );
+
 	$param = "";
 	echo '<div class="div-table-responsive">', "\n";
 	echo '<table class="tagtable liste">', "\n";
@@ -162,9 +185,8 @@ if ($responseSQL) {
     echo '</tr>', "\n";
 
     $row_count = $db->num_rows($responseSQL);
-    $i = 0;
-	while ($i < $row_count)
-	{
+    for ($i = 0; $i < $row_count; $i++)
+    {
 		$obj = $db->fetch_object($responseSQL);
 		echo '<tr class="oddeven">';
 		// Id
@@ -199,7 +221,6 @@ if ($responseSQL) {
             array()
         );
 		echo "</tr>\n";
-		$i++;
 	}
 	echo "</table>";
 	echo '</div>';

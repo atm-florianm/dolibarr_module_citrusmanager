@@ -27,6 +27,7 @@ $template_fill = function ($template, $replacements) use ($langs) {
     // Templating: replace some underscore-prefixed names with their dictionary value
     foreach ($replacements as $key => $val) {
         $filled_template = str_replace('{' . $key . '}', $val, $filled_template);
+        $filled_template = str_replace('__' . $key . '__', $val, $filled_template);
     }
 
     // Templating: replace "{ABC}" with $langs->trans("ABC")
