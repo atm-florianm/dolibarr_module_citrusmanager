@@ -45,6 +45,8 @@ CitrusDictCategories = Dictionnaire des catégories d’agrumes
 CitrusCategory = Catégorie
 CitrusCategoryHint = Catégorie de l’agrume (la liste est configurable dans <span style="border-radius: 0.2em; padding: 0.1em 0.3em; background: #ffc5c5">Accueil → Configuration → Dictionnaires → Dictionnaire des catégories d’agrumes</span>)
 
+CitrusDefaultPriceTooltip = Lorsque vous créerez un nouvel agrume sans préciser de prix ni de catégorie, ce prix par défaut sera utilisé à la place. Si une catégorie est précisée et que cette catégorie est elle-même associée à un prix par défaut, le prix de la catégorie sera utilisé.
+
 
 # Module label 'ModuleCitrusmanagerName'
 ModuleCitrusmanagerName = Citrusmanager

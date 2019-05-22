@@ -85,5 +85,18 @@ class CitrusCategories extends CommonObject
             return -1;
         }
     }
+    function fetchDefaultPrice($categoryId)
+    {
+        $prepSQL = 'SELECT default_price FROM '. $this->category_table_name .' WHERE rowid = ?;';
+        $prepSQL = $this->db->db->prepare($prepSQL);
+        $prepSQL->bind_param('i', $categoryId);
+        $response = $prepSQL->execute();
+        if ($response) {
+            $result = $prepSQL->get_result();
+            return $result->fetch_object()->default_price;
+        } else {
+            return -1;
+        }
+    }
 }
 

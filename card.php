@@ -130,22 +130,20 @@ $show_citrus = function ($is_in_edit_mode) use (
     $form,
     $allCategories
 ) {
-    llxHeader();
     $id = GETPOST('id', 'int');
     if ($id <= 0) {
         // invalid ID passed by POST or GET
-        // TODO: replace this dirty redirect with anything else (error message or default value?)
-        echo '<script>window.setTimeout(() => {window.location = "list.php";}, 1000);</script>';
+        header('Location: list.php');
         return;
     }
     $id = $object->fetch($id);
-    echo "<br>";
     if ($id < 0) {
         // no citrus with this ID in the database
-        // TODO: replace this dirty redirect with anything else (error message or default value?)
-        echo '<script>window.setTimeout(() => {window.location = "list.php";}, 1000);</script>';
+        header('Location: list.php');
         return;
     }
+    llxHeader();
+    echo "<br>";
     $current_page = $_SERVER['PHP_SELF'];
     $edit_url = $current_page_with_params(array('id' => $id, 'action' => 'edit'));
     $delete_url = $current_page_with_params(array('id' => $id, 'action' => 'delete'));
@@ -153,7 +151,7 @@ $show_citrus = function ($is_in_edit_mode) use (
         array( // describes the available tab links
             array(
                 $current_page_with_params(array('id' => $id)), // url
-                $langs->trans('Card'),                    // title
+                $langs->trans('Card'),                   // title
                 'card_tab'                                     // key (ID)
             )
         ),
@@ -219,11 +217,21 @@ $show_citrus = function ($is_in_edit_mode) use (
  *             -1 if SQL insert or update failed,
  *             -2 if SQL insert was executed but last_insert_id <= 0
  */
-$save_citrus = function ($id = null) use ($db, $object) {
+$save_citrus = function ($id = null) use ($db, $object, $conf) {
     $object->ref = GETPOST('ref', 'alpha');
     $object->label = GETPOST('label', 'alpha');
     $object->price = GETPOST('price', 'int');
     $object->categoryId = GETPOST('category', 'int');
+    if (!$object->price) {
+        if ($object->categoryId) {
+            $categoriesDAO = new CitrusCategories($db);
+            $default_price = $categoriesDAO->fetchDefaultPrice($object->categoryId);
+            $object->price = $default_price;
+        } else {
+            $citrus_default_price = $conf->global->CITRUSMANAGER_DEFAULT_PRICE;
+            $object->price = $citrus_default_price;
+        }
+    }
     if ($id) {
         $object->id = $id;
         return $object->update();
