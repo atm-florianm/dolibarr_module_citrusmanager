@@ -83,6 +83,39 @@ class ActionsCitrusmanager
 		return 0;
 	}
 
+    /**
+     * @param $parameters
+     * @param $object
+     * @param $action
+     * @param $hookmanager
+     */
+	public function formObjectOptions($parameters, $object, $action, $hookmanager) {
+    }
+
+    /**
+     * @param $parameters
+     * @param $object
+     * @param $action
+     * @param $hookmanager
+     */
+    public function addMoreActionsButtons($parameters, $object, $action, $hookmanager) {
+        global $langs;
+        require_once DOL_DOCUMENT_ROOT . '/custom/citrusmanager/lib/citrusmanager.lib.php';
+        if (in_array($parameters['currentcontext'], array('productcard')))	    // do something only for the context 'productcard'
+        {
+            $url = '/custom/citrusmanager/card.php?action=create&mainmenu=citrusmanager&derive_from_product=1&product_id=' . $object->id;
+            echo $template_fill(
+                '<div class="divButAction">
+                   <a
+                     class="butAction"
+                     href="{CREATE_CITRUS_FROM_PRODUCT_URL}">{T:DerivateCitrusFromProduct}</a></div>',
+                array(
+                    'CREATE_CITRUS_FROM_PRODUCT_URL' => $url
+                )
+            );
+        }
+    }
+
 	/**
 	 * Overloading the doActions function : replacing the parent's function with the one below
 	 *
@@ -101,26 +134,6 @@ class ActionsCitrusmanager
         /* print_r($parameters); print_r($object); echo "action: " . $action; */
 	    if (in_array($parameters['currentcontext'], array('productcard')))	    // do something only for the context 'productcard'
 	    {
-	        echo '<script>' . <<<JS
-let c = '<input type="submit" class="btnAction">';
-
-window.onload = 
-    () => {
-        let container = document.querySelector('div.tabsAction');
-        let c = document.createElement('div');
-        let cc = document.createElement('a');
-        c.className = 'divButAction';
-        
-        cc.className = 'butAction';
-        cc.innerText = 'TRANSFORMER EN AGRUME';
-        cc.href = '/custom/citrusmanager/list.php';
-        
-        c.appendChild(cc);
-        container.appendChild(c);
-    };
-JS
-                . '</script>';
-
 		}
 
 		if (! $error) {

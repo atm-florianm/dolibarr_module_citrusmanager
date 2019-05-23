@@ -48,6 +48,8 @@ CitrusCategoryHint = Catégorie de l’agrume (la liste est configurable dans <s
 CitrusDefaultPriceTooltip = Lorsque vous créerez un nouvel agrume sans préciser de prix ni de catégorie, ce prix par défaut sera utilisé à la place. Si une catégorie est précisée et que cette catégorie est elle-même associée à un prix par défaut, le prix de la catégorie sera utilisé.
 CitrusHookError = Erreur lors de l’exécution du hook.
 
+DerivateCitrusFromProduct = Créer un agrume
+ParentProductOfCitrus = Réf. produit dont cet agrume est dérivé
 
 # Module label 'ModuleCitrusmanagerName'
 ModuleCitrusmanagerName = Citrusmanager

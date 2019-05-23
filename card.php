@@ -24,7 +24,7 @@ $template_new_citrus_form = <<<HTML
                    name="ref"
                    class="flat minwidth100"
                    style="width: 80%"
-                   value=""
+                   value="{CITRUS_REF}"
                    placeholder="{T:CitrusRefShortHint}"/></td>
             <td>{T:CitrusRefHint}</td>
         </tr>
@@ -34,6 +34,7 @@ $template_new_citrus_form = <<<HTML
                    name="label"
                    class="flat minwidth100"
                    style="width: 80%"
+                   value="{CITRUS_LABEL}"
                    placeholder="{T:CitrusLabelShortHint}"/></td>
             <td>{T:CitrusLabelHint}</td>
         </tr>
@@ -43,7 +44,8 @@ $template_new_citrus_form = <<<HTML
                    name="price"
                    class="flat minwidth100"
                    style="width: 80%"
-                   placeholder="{T:CitrusPriceShortHint}"/></td>
+                   placeholder="{T:CitrusPriceShortHint}"
+                   value="{CITRUS_PRICE}"/></td>
             <td>{T:CitrusPriceHint}</td>
         </tr>
             <td class="">{T:CitrusCategory}</td>
@@ -54,7 +56,17 @@ $template_new_citrus_form = <<<HTML
                 {T:CitrusCategoryHint}
             </td>
         <tr>
-</tr>
+        <tr>
+            <td class="">{T:ParentProductOfCitrus}</td>
+            <td class="">
+                <input
+                   type="hidden"
+                   name="fk_product"
+                   value="{PARENT_PRODUCT_ID}" />
+                {PARENT_PRODUCT_REF}
+            </td>
+            <td class=""></td>
+        </tr>
     </table>
     <div align="center">
         <input type="submit" class="button" accesskey="s" value="{T:CreateCitrus}" name="create"/>
@@ -69,19 +81,6 @@ $categoriesDAO = new CitrusCategories($db);
 // by default, use empty category (ID 0)
 $allCategories = array(0 => '');
 $allCategories = array_merge($allCategories, $categoriesDAO->fetchAll());
-$new_citrus_form = $template_fill(
-    $template_new_citrus_form,
-    array(
-        'SAVE_URL'          => $current_page_with_params(array('action' => 'save')),
-        'NEW_SESSION_TOKEN' => $_SESSION['newtoken'],
-        'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus')),
-        'CATEGORY'        => $form->selectarray(
-            'category',
-            $allCategories,
-            0
-        )
-    )
-);
 
 $template_show_citrus = <<<HTML
 {FORM_START?}
@@ -109,7 +108,44 @@ $template_show_citrus = <<<HTML
 HTML;
 
 // Function that displays the Citrus creation form.
-$show_form_create = function () use ($new_citrus_form) {
+$show_form_create = function () use (
+    $template_new_citrus_form,
+    $template_fill,
+    $current_page_with_params,
+    $form,
+    $langs,
+    $allCategories,
+    $db
+) {
+    require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
+    $product = NULL;
+    if (GETPOST('derive_from_product',  'int')) {
+        $product_id = GETPOST('product_id', 'int') ?: NULL;
+        if ($product_id) {
+            $product = new Product($db);
+            if ($product->fetch($product_id) == -1) {
+                $product = NULL;
+            }
+        }
+    }
+    $new_citrus_form = $template_fill(
+        $template_new_citrus_form,
+        array(
+            'SAVE_URL'          => $current_page_with_params(array('action' => 'save')),
+            'NEW_SESSION_TOKEN' => $_SESSION['newtoken'],
+            'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus')),
+            'CATEGORY'        => $form->selectarray(
+                'category',
+                $allCategories,
+                0
+            ),
+            'CITRUS_REF' => $product ? $product->ref : '',
+            'CITRUS_LABEL' => $product ? $product->label : '',
+            'CITRUS_PRICE' => $product ? $product->price : '',
+            'PARENT_PRODUCT_REF' => $product ? $product->ref : '',
+            'PARENT_PRODUCT_ID' => $product ? $product->id : ''
+        )
+    );
     llxHeader();
     echo $new_citrus_form;
 };
@@ -169,6 +205,7 @@ $show_citrus = function ($is_in_edit_mode) use (
                 '<form action="' . $current_page . '?action=save"' . ' method="POST">' . "\n"
                 .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
                 .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
+                .'<input type="hidden" name="fk_product" value="'.$object->fk_product.'" />'
             ),
             'CATEGORY' => $form->selectarray(
                 'category',
@@ -222,6 +259,7 @@ $save_citrus = function ($id = null) use ($db, $object, $conf) {
     $object->label = GETPOST('label', 'alpha');
     $object->price = GETPOST('price', 'int');
     $object->categoryId = GETPOST('category', 'int');
+    $object->fk_product = GETPOST('fk_product', 'int');
     if (!$object->price) {
         if ($object->categoryId) {
             $categoriesDAO = new CitrusCategories($db);
@@ -268,8 +306,7 @@ if (GETPOST('cancel', 'alpha')) {
             $id = GETPOST('id', 'int');
             $result = $save_citrus($id);
             if ($result <= 0) {
-                assert(false);
-                exit;
+                setEventMessages('Database error: failed to save citrus.', array(), 'errors');
             }
             $show_citrus(false);
             break;

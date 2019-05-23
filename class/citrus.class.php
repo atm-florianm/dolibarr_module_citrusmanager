@@ -39,6 +39,11 @@ class Citrus extends CommonObject
      */
     public $price;
     public $date_creation;
+
+    /**
+     * @var int
+     */
+    public $fk_product;
     public $tms;
     public $import_key;
     public $fk_user_creat;
@@ -72,6 +77,7 @@ class Citrus extends CommonObject
                     ref, 
                     label,
                     price,
+                    fk_product,
                     date_creation,
                     tms,
                     import_key, 
@@ -94,6 +100,7 @@ class Citrus extends CommonObject
 					'ref',
 					'label',
 					'price',
+					'fk_product',
 					'date_creation',
 					'tms',
 					'import_key',
@@ -120,6 +127,7 @@ class Citrus extends CommonObject
             ref,
             label,
             price,
+            fk_product,
             fk_category,
             date_creation
         ) VALUES (
@@ -127,13 +135,15 @@ class Citrus extends CommonObject
             ?,
             ?,
             ?,
+            ?,
             ? );';
         $prepSQL = $this->db->db->prepare($prepSQL);
         $prepSQL->bind_param(
-            'ssdii',
+            'ssdiii',
             $this->db->escape($this->ref),
             $this->db->escape($this->label),
             $this->price,
+            $this->fk_product,
             $this->categoryId,
             $this->db->idate($now)
         );
@@ -167,15 +177,17 @@ class Citrus extends CommonObject
             ref = ?,
             label = ?,
             price = ?,
+            fk_product = ?,
             fk_category = ?
             WHERE rowid = ?;';
         dol_syslog('Citrus::update', LOG_DEBUG);
         $prepSQL = $this->db->db->prepare($prepSQL);
         $prepSQL->bind_param(
-            'ssdii',
+            'ssdiii',
             $this->ref,
             $this->label,
             $this->price,
+            $this->fk_product,
             $this->categoryId,
             $this->id
         );

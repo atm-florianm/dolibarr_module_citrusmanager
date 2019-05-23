@@ -33,6 +33,9 @@ CREATE TABLE llx_citrusmanager_citrus(
 	-- category, e.g. "sour", "sweet"
 	fk_category   INTEGER,
 
+    -- product from which the citrus is derived
+    fk_product    INTEGER,
+
 	date_creation DATETIME NOT NULL,
 	tms           TIMESTAMP NOT NULL,
 	import_key    VARCHAR(14),
@@ -42,9 +45,10 @@ CREATE TABLE llx_citrusmanager_citrus(
 	fk_user_modif INTEGER,
 
 	INDEX idx_citrusmanager_citrus (ref),
-	FOREIGN KEY (fk_category)   REFERENCES llx_c_citrus_category(rowid) ON DELETE CASCADE,
-	FOREIGN KEY (fk_user_modif) REFERENCES llx_user(rowid) ON DELETE CASCADE,
-	FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid) ON DELETE CASCADE
+    FOREIGN KEY (fk_product)   REFERENCES llx_product(rowid) ON DELETE SET NULL,
+	FOREIGN KEY (fk_category)   REFERENCES llx_c_citrus_category(rowid) ON DELETE SET NULL,
+	FOREIGN KEY (fk_user_modif) REFERENCES llx_user(rowid) ON DELETE SET NULL,
+	FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid) ON DELETE SET NULL
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
