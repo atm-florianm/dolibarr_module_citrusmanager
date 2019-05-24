@@ -56,6 +56,10 @@ ModuleCitrusmanagerName = Citrusmanager
 # Module description 'ModuleCitrusmanagerDesc'
 ModuleCitrusmanagerDesc = Gestionnaire d’agrumes: gérer vos agrumes n’a jamais été aussi simple.
 
+
+SalesProposalSpecificMentionTooltip = Indiquez dans ce champ les agrumes que vous souhaitez voir inclus dans cette proposition.
+SpecificMention = Mention spécifique
+
 #
 # Page d'administration
 #
