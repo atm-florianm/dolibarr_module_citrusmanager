@@ -380,7 +380,18 @@ class modCitrusmanager extends DolibarrModules
                 );
             }
         };
-		$sql = array();
+		$sql = array(
+            'INSERT INTO
+                ' . MAIN_DB_PREFIX . 'document_model (
+                    nom,
+                    entity,
+                    type
+                ) VALUES (
+                    "sunset",
+                    1,
+                    "propal"
+                );'
+        );
 
 		return $this->_init($sql, $options);
 	}
