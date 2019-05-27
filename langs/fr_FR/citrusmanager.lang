@@ -60,7 +60,8 @@ ModuleCitrusmanagerDesc = Gestionnaire d’agrumes: gérer vos agrumes n’a jam
 SalesProposalSpecificMentionTooltip = Indiquez dans ce champ les agrumes que vous souhaitez voir inclus dans cette proposition.
 SpecificMention = Mention spécifique
 
-DocModelSunsetDescription = Modèle Sunset
+SunsetModel = Modèle Sunset
+DocModelSunsetDescription = Modèle Sunset : permet d’afficher le champ complémentaire "mention spécifique" sur les propositions commerciales.
 
 #
 # Page d'administration

@@ -390,7 +390,6 @@ class pdf_sunset extends ModelePDFPropales
 				$pdf->MultiCell(0, 3, '');		// Set interline to 3
 				$pdf->SetTextColor(0,0,0);
 
-
 	            $tab_top = 90+$top_shift;
 				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42+$top_shift:10);
 
@@ -455,6 +454,17 @@ class pdf_sunset extends ModelePDFPropales
 
 					$tab_top = $nexY+6;
 				}
+
+				// add specific note if it is found
+				if (isset($object->array_options['options_specific_mention'])) {
+                    $specific_mention = $object->array_options['options_specific_mention'];
+                    $tab_top += $this->_specific_mention(
+                        $pdf,
+                        $object,
+                        $tab_top,
+                        $outputlangs,
+                        $specific_mention);
+                }
 
 				$iniY = $tab_top + 7;
 				$curY = $tab_top + 7;
@@ -710,8 +720,6 @@ class pdf_sunset extends ModelePDFPropales
 				{
 				    $posy=$this->_signature_area($pdf, $object, $posy, $outputlangs);
 				}
-
-				$posy = $this->_specific_mention($pdf, $object, $posy, $outputlangs);
 
 				// Pied de page
 				$this->_pagefoot($pdf,$object,$outputlangs);
@@ -1336,7 +1344,15 @@ class pdf_sunset extends ModelePDFPropales
 		$pdf->SetFont('','',$default_font_size - 1);
 
 		// Output Rect
-		$this->printRect($pdf,$this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $tab_height, $hidetop, $hidebottom);	// Rect prend une longueur en 3eme param et 4eme param
+		$this->printRect(
+		    $pdf,
+            $this->marge_gauche,
+            $tab_top,
+            $this->page_largeur-$this->marge_gauche-$this->marge_droite,
+            $tab_height,
+            $hidetop,
+            $hidebottom
+        );	// Rect prend une longueur en 3eme param et 4eme param
 
 		if (empty($hidetop))
 		{
@@ -1686,16 +1702,39 @@ class pdf_sunset extends ModelePDFPropales
 		return ($tab_hl*7);
 	}
 
-	function _specific_mention(&$pdf, $object, $posy, $outputlangs)
+	function _specific_mention(&$pdf, $object, $posy, $outputlangs, $specific_mention)
     {
         global $conf;
+        $title = $outputlangs->trans('SpecificMention');
         $default_font_size = pdf_getPDFFontSize($outputlangs);
-        $pdf->setXY(0, $posy + 4);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetFont('','', $default_font_size - 2);
-        $title=$outputlangs->transnoentities("PdfCommercialProposalTitle");
-        $pdf->MultiCell(100, 4, $title, '', 'R');
 
-        return $posy + 10;
+        $main_width = $this->page_largeur - $this->marge_gauche - $this->marge_droite;
+        $frame_width = $main_width / 2;
+
+        $middle_of_page_x = $this->marge_gauche + $main_width / 2;
+        $frame_start_x = $middle_of_page_x - $frame_width / 2;
+
+        $pdf->setXY($frame_start_x, $posy + 4);
+        $pdf->MultiCell(
+            $frame_width, // width
+            4, // height
+            '<b>'. $title . "&nbsp;:</b><br/>" . $specific_mention,
+            1, // border
+            'L', // align
+            true, // fill (background)
+            1, // ln
+            '', // x
+            '', // y
+            true, // reseth
+            0, // stretch
+            true, // ishtml
+            true, // autopadding
+            0, // maxh
+            'T' // valign
+        );
+
+        return 4 + 4 + $pdf->getY() - $posy;
     }
 }
