@@ -114,7 +114,6 @@ class Citrus extends CommonObject
             $this->categoryId = $categoriesDAO->fetchCategoryOfCitrus($this->id);
             return $this->id;
         } else {
-            dol_print_error($this->db);
             return -1;
         }
     }
@@ -123,7 +122,7 @@ class Citrus extends CommonObject
         global $conf;
         $now=dol_now();
         $this->db->begin();
-        $prepSQL = 'INSERT INTO ' . $this->table_name . ' (
+        $sql = 'INSERT INTO ' . $this->table_name . ' (
             ref,
             label,
             price,
@@ -131,25 +130,16 @@ class Citrus extends CommonObject
             fk_category,
             date_creation
         ) VALUES (
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            ? );';
-        $prepSQL = $this->db->db->prepare($prepSQL);
-        $prepSQL->bind_param(
-            'ssdiii',
-            $this->db->escape($this->ref),
-            $this->db->escape($this->label),
-            $this->price,
-            $this->fk_product,
-            $this->categoryId,
-            $this->db->idate($now)
-        );
+            "'. $this->db->escape($this->ref) . '",
+            "'. $this->db->escape($this->label) .'",
+            "'. $this->price .'",
+            "'. $this->fk_product .'",
+            "'. $this->categoryId .'",
+            "'. $this->db->idate($now) . '"
+            );';
 
         dol_syslog('Citrus::create', LOG_DEBUG);
-        if ($prepSQL->execute()) {
+        if ($this->db->query($sql)) {
             $id = $this->db->last_insert_id($this->table_name);
             if ($id > 0) {
                 $this->id = $id;
