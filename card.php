@@ -108,15 +108,14 @@ $template_show_citrus = <<<HTML
 HTML;
 
 // Function that displays the Citrus creation form.
-$show_form_create = function () use (
-    $template_new_citrus_form,
-    $template_fill,
-    $current_page_with_params,
-    $form,
-    $langs,
-    $allCategories,
-    $db
-) {
+function show_form_create () {
+    global $template_new_citrus_form;
+    global $template_fill;
+    global $form;
+    global $langs;
+    global $allCategories;
+    global $db;
+    global $current_page_with_params;
     require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
     $product = NULL;
     if (GETPOST('derive_from_product',  'int')) {
@@ -156,26 +155,27 @@ $object = new Citrus($db);
 /**
  * @param $is_in_edit_mode boolean  Whether to show the citrus as a read-only display or as an edit form
  */
-$show_citrus = function ($is_in_edit_mode) use (
-    $db,
-    $object,
-    $langs,
-    $template_fill,
-    $current_page_with_params,
-    $template_show_citrus,
-    $form,
-    $allCategories
-) {
+function show_citrus ($is_in_edit_mode) {
+    global $db;
+    global $object;
+    global $langs;
+    global $template_fill;
+    global $current_page_with_params;
+    global $template_show_citrus;
+    global $form;
+    global $allCategories;
     $id = GETPOST('id', 'int');
     if ($id <= 0) {
         // invalid ID passed by POST or GET
         header('Location: list.php');
+        exit;
         return;
     }
     $id = $object->fetch($id);
     if ($id < 0) {
         // no citrus with this ID in the database
         header('Location: list.php');
+        exit;
         return;
     }
     llxHeader();
@@ -278,11 +278,6 @@ $save_citrus = function ($id = null) use ($db, $object, $conf) {
     }
 };
 
-
-$delete_citrus = function () use ($db, $object) {
-
-};
-
 $go_back_to_list = function () use ($list_view_url) {
     header('location: ' . $list_view_url);
 };
@@ -292,7 +287,7 @@ if (GETPOST('cancel', 'alpha')) {
     // or creating a new one
     if (GETPOST('id', 'int')) {
         // back to card edit form
-        $show_citrus(true);
+        show_citrus(true);
     } else {
         // back to card creation form
         $go_back_to_list();
@@ -300,18 +295,21 @@ if (GETPOST('cancel', 'alpha')) {
 } else {
     switch ($action) {
         case 'create':
-            $show_form_create();
+            show_form_create();
             break;
         case 'save':
             $id = GETPOST('id', 'int');
             $result = $save_citrus($id);
-            if ($result <= 0) {
+            if ($result > 0) {
+                header('Location: card.php?id=' . $result);
+                exit;
+            } else {
                 setEventMessages('Database error: failed to save citrus.', array(), 'errors');
+                dol_print_error($db);
             }
-            $show_citrus(false);
             break;
         case 'edit':
-            $show_citrus(true);
+            show_citrus(true);
             break;
         case 'delete':
             $form = new Form($db);
@@ -330,7 +328,7 @@ if (GETPOST('cancel', 'alpha')) {
             );
             llxHeader();
             echo $ajax_confirm_delete;
-            $show_citrus(false);
+            show_citrus(false);
             break;
         case 'confirm_delete':
             if ('yes' == GETPOST('confirm', 'alpha')) {
@@ -345,15 +343,15 @@ if (GETPOST('cancel', 'alpha')) {
                     } else {
                         $lastdberror = $db->lasterror();
                         echo '<script>alert("not ok: ' . addslashes($lastdberror) . '");</script>';
-                        $show_citrus(false);
+                        show_citrus(false);
                     }
                 }
             } else {
-                $show_citrus(false);
+                show_citrus(false);
             }
             break;
         default:
-            $show_citrus(false);
+            show_citrus(false);
     }
 }
 // Display the bottom part of the Dolibarr standard interface (mostly closing tags, except in some specific cases)

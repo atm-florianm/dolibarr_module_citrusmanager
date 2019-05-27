@@ -46,6 +46,7 @@ class CitrusCategories extends CommonObject
     function fetchCategoryOfCitrus($citrusId)
     {
         assert(is_numeric($citrusId), 'The ID of the citrus has to be numeric');
+        assert($citrusId > 0);
         $sql = 'SELECT tag.rowid, tag.ref, tag.default_price 
             FROM '       . $this->category_table_name    . ' as tag
             INNER JOIN ' . $this->main_object_table_name . ' as citrus
