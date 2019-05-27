@@ -13,19 +13,5 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see http://www.gnu.org/licenses/.
 
-CREATE TABLE llx_c_citrus_category (
-	rowid         INTEGER AUTO_INCREMENT PRIMARY KEY,
-
-	-- reference
-	ref           VARCHAR(255) UNIQUE,
-
-	-- note
-	note          VARCHAR(1024),
-
-	-- default price
-	default_price FLOAT,
-
-    -- ??
-    active        TINYINT(4)
-) ENGINE=innodb;
+CREATE INDEX IF NOT EXISTS idx_c_citrus_category_ref ON llx_c_citrus_category (ref);
 

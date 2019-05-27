@@ -44,6 +44,9 @@ class modCitrusmanager extends DolibarrModules
 
         $this->db = $db;
 
+        // Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
+        $this->version = '1.0.1';
+
 		// Id for module (must be unique).
 		// Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
 		$this->numero = 104301;		// TODO Go on page https://wiki.dolibarr.org/index.php/List_of_modules_id to reserve id number for your module
@@ -67,9 +70,6 @@ class modCitrusmanager extends DolibarrModules
 
 		$this->editor_name = 'ATM Consulting';
 		$this->editor_url = 'https://www.atm-consulting.fr';
-
-		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.0';
 
         //Url to the file with your last numberversion of this module
         //$this->url_last_version = 'http://www.example.com/versionmodule.txt';
@@ -406,7 +406,9 @@ class modCitrusmanager extends DolibarrModules
 	 */
 	public function remove($options = '')
 	{
-		$sql = array();
+		$sql = array(
+		    'DELETE FROM ' . MAIN_DB_PREFIX . 'document_model WHERE nom = \'azur_mention\';'
+        );
 
 		return $this->_remove($sql, $options);
 	}

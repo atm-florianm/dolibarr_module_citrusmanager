@@ -13,19 +13,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see http://www.gnu.org/licenses/.
 
-CREATE TABLE llx_c_citrus_category (
-	rowid         INTEGER AUTO_INCREMENT PRIMARY KEY,
-
-	-- reference
-	ref           VARCHAR(255) UNIQUE,
-
-	-- note
-	note          VARCHAR(1024),
-
-	-- default price
-	default_price FLOAT,
-
-    -- ??
-    active        TINYINT(4)
-) ENGINE=innodb;
+ALTER TABLE llx_citrusmanager_citrus ADD COLUMN fk_category INTEGER;
+ALTER TABLE llx_citrusmanager_citrus ADD COLUMN fk_product INTEGER;
+ALTER TABLE llx_c_citrus_category ADD COLUMN default_price FLOAT;
 

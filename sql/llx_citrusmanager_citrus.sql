@@ -14,7 +14,7 @@
 -- along with this program.  If not, see http://www.gnu.org/licenses/.
 
 
-CREATE TABLE llx_citrusmanager_citrus(
+CREATE TABLE llx_citrusmanager_citrus (
 	-- BEGIN MODULEBUILDER FIELDS
 	rowid         INTEGER AUTO_INCREMENT PRIMARY KEY,
 
@@ -42,13 +42,7 @@ CREATE TABLE llx_citrusmanager_citrus(
 
 	-- user who created / last edited the citrus item
 	fk_user_creat INTEGER,
-	fk_user_modif INTEGER,
-
-	INDEX idx_citrusmanager_citrus (ref),
-    FOREIGN KEY (fk_product)   REFERENCES llx_product(rowid) ON DELETE SET NULL,
-	FOREIGN KEY (fk_category)   REFERENCES llx_c_citrus_category(rowid) ON DELETE SET NULL,
-	FOREIGN KEY (fk_user_modif) REFERENCES llx_user(rowid) ON DELETE SET NULL,
-	FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid) ON DELETE SET NULL
+	fk_user_modif INTEGER
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
 
