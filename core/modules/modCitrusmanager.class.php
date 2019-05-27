@@ -387,7 +387,7 @@ class modCitrusmanager extends DolibarrModules
                     entity,
                     type
                 ) VALUES (
-                    "sunset",
+                    "azur_mention",
                     1,
                     "propal"
                 );'

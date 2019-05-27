@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
 
 
-class pdf_sunset extends ModelePDFPropales
+class pdf_azur_mention extends ModelePDFPropales
 {	/**
      * @var DoliDb Database handler
      */
@@ -125,8 +125,8 @@ class pdf_sunset extends ModelePDFPropales
 		$langs->loadLangs(array("main", "bills"));
 
 		$this->db = $db;
-		$this->name = "sunset";
-		$this->description = $langs->trans('DocModelSunsetDescription');
+		$this->name = "AzurMentionModel";
+		$this->description = $langs->trans('DocModelAzurMentionDescription');
 		$this->update_main_doc_field = 1;		// Save the name of generated file as the main doc when generating a doc with this template
 
 		// Dimension page
