@@ -106,7 +106,7 @@ class ActionsCitrusmanager
             $url = dol_buildpath(
                 'citrusmanager/card.php?action=create&mainmenu=citrusmanager&derive_from_product=1&product_id=' . $object->id,
                 1);
-            echo $template_fill(
+            echo template_fill(
                 '<div class="divButAction">
                    <a
                      class="butAction"
