@@ -163,13 +163,14 @@ function show_citrus ($is_in_edit_mode) {
     $id = GETPOST('id', 'int');
     if ($id <= 0) {
         // invalid ID passed by POST or GET
-        redirect_and_exit('list.php');
+        dol_print_error();
         return;
     }
     $id = $citrusDAO->fetch($id);
-    if ($id < 0) {
+    if ($id <= 0) {
         // no citrus with this ID in the database
-        redirect_and_exit('list.php');
+        setEventMessages('Database error: failed to fetch citrus.', array(), 'errors');
+        dol_print_error();
         return;
     }
     llxHeader();
@@ -304,7 +305,7 @@ if (GETPOST('cancel', 'alpha')) {
             $form = new Form($db);
             $id = GETPOST('id', 'int');
             if ($id <= 0) {
-                redirect_and_exit('list.php');
+                dol_print_error();
             }
             $ajax_confirm_delete = $form->formconfirm(
                 current_page_with_params(array('id' => $id)),
@@ -324,15 +325,15 @@ if (GETPOST('cancel', 'alpha')) {
                 $id = GETPOST('id', 'int');
                 $id = $citrusDAO->fetch($id);
                 if ($id <= 0) {
-                    echo '<script>alert("db_error");</script>';
+                    dol_print_error();
+                    var_dump($id);
                 } else {
-                    if($citrusDAO->remove() == 1) {
-                        echo '<script>alert("ok");</script>';
+                    $result = $citrusDAO->remove();
+                    if($result > 0) {
                         redirect_and_exit('list.php');
                     } else {
-                        $lastdberror = $db->lasterror();
-                        echo '<script>alert("not ok: ' . addslashes($lastdberror) . '");</script>';
-                        show_citrus(false);
+                        dol_print_error();
+                        var_dump($result);
                     }
                 }
             } else {

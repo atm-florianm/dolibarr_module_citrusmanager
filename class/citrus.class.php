@@ -20,6 +20,11 @@ class Citrus extends CommonObject
     public $db;
 
     /**
+     * @var $errno int
+     */
+    public $errno;
+
+    /**
      * @var int
      */
     public $id;
@@ -185,7 +190,7 @@ class Citrus extends CommonObject
             $this->db->commit();
             $this->db->begin();
             $this->db->commit();
-            return 1;
+            return $this->id;
         } else {
             $this->db->rollback();
             return -1;
@@ -198,11 +203,11 @@ class Citrus extends CommonObject
         $resql=$this->db->query($sql);
         if ($resql)
         {
-            return 1;
+            return $this->id;
         }
         else
         {
-            $this->error=$this->db->lasterror();
+            $this->error = $this->db->lasterror();
             return -1;
         }
     }

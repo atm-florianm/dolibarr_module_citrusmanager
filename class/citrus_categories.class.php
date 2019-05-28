@@ -59,7 +59,6 @@ class CitrusCategories extends CommonObject
         if ($responseSQL) {
             return $this->db->fetch_object($responseSQL)->rowid;
         } else {
-            dol_print_error($this->db);
             return -1;
         }
     }
