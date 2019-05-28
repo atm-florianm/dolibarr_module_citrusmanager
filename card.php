@@ -148,14 +148,14 @@ function show_form_create () {
 };
 
 // data access object
-$object = new Citrus($db);
+$citrusDAO = new Citrus($db);
 
 /**
  * @param $is_in_edit_mode boolean  Whether to show the citrus as a read-only display or as an edit form
  */
 function show_citrus ($is_in_edit_mode) {
     global $db;
-    global $object;
+    global $citrusDAO;
     global $langs;
     global $template_show_citrus;
     global $form;
@@ -166,7 +166,7 @@ function show_citrus ($is_in_edit_mode) {
         redirect_and_exit('list.php');
         return;
     }
-    $id = $object->fetch($id);
+    $id = $citrusDAO->fetch($id);
     if ($id < 0) {
         // no citrus with this ID in the database
         redirect_and_exit('list.php');
@@ -191,20 +191,20 @@ function show_citrus ($is_in_edit_mode) {
     );
     if ($is_in_edit_mode) {
         $template_values = array(
-            'CITRUS_REF' => '<input name="ref" value="'. $object->ref .'">',
+            'CITRUS_REF' => '<input name="ref" value="'. $citrusDAO->ref .'">',
             'CITRUS_LABEL' => '<textarea name="label" style="width: 85%; height: 5em;">'
-                               . $object->label . '</textarea>' . "\n",
-            'CITRUS_PRICE' => '<input name="price" value="' . $object->price . '">',
+                               . $citrusDAO->label . '</textarea>' . "\n",
+            'CITRUS_PRICE' => '<input name="price" value="' . $citrusDAO->price . '">',
             'FORM_START?' => (
                 '<form action="' . current_page_with_params(array('action' => 'save')) . '" method="POST">' . "\n"
                 .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
                 .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
-                .'<input type="hidden" name="fk_product" value="'.$object->fk_product.'" />'
+                .'<input type="hidden" name="fk_product" value="'.$citrusDAO->fk_product.'" />'
             ),
             'CATEGORY' => $form->selectarray(
                 'category',
                 $allCategories,
-                $object->categoryId
+                $citrusDAO->categoryId
             ),
             'FORM_BUTTONS?' => '<input type="submit" class="button" accesskey="s" value="{T:Save}" name="save"/>',
             'FORM_END?' => '</form>',
@@ -212,16 +212,16 @@ function show_citrus ($is_in_edit_mode) {
         );
     } else {
         $template_values = array(
-            'CITRUS_REF' => $object->ref,
-            'CITRUS_LABEL' => $object->label,
-            'CITRUS_PRICE' => $object->price ?: $langs->trans('Unavailable'),
+            'CITRUS_REF' => $citrusDAO->ref,
+            'CITRUS_LABEL' => $citrusDAO->label,
+            'CITRUS_PRICE' => $citrusDAO->price ?: $langs->trans('Unavailable'),
             'FORM_START?' => '',
             'CATEGORY' => '<div class="select2-container-multi-dolibarr">
                 <ul class="select2-choices-dolibarr">
                 <li class="select2-search-choice-dolibarr noborderoncategories"
                                 style="background: #454545; padding: 0.3em;">
                      <img src="/theme/eldy/img/object_category.png" alt="" class="inline-block">
-                            <span class="categtextwhite"> ' . dol_htmlentities($allCategories[$object->categoryId]) . '</span></li></ul>',
+                            <span class="categtextwhite"> ' . dol_htmlentities($allCategories[$citrusDAO->categoryId]) . '</span></li></ul>',
             'FORM_BUTTONS?' => '',
             'FORM_END?' => '',
             'ACTION_BUTTONS?' => '
@@ -248,27 +248,27 @@ function show_citrus ($is_in_edit_mode) {
  *             -1 if SQL insert or update failed,
  *             -2 if SQL insert was executed but last_insert_id <= 0
  */
-$save_citrus = function ($id = null) use ($db, $object, $conf) {
-    $object->ref = GETPOST('ref', 'alpha');
-    $object->label = GETPOST('label', 'alpha');
-    $object->price = GETPOST('price', 'int');
-    $object->categoryId = GETPOST('category', 'int');
-    $object->fk_product = GETPOST('fk_product', 'int');
-    if (!$object->price) {
-        if ($object->categoryId) {
+$save_citrus = function ($id = null) use ($db, $citrusDAO, $conf) {
+    $citrusDAO->ref = GETPOST('ref', 'alpha');
+    $citrusDAO->label = GETPOST('label', 'alpha');
+    $citrusDAO->price = GETPOST('price', 'int');
+    $citrusDAO->categoryId = GETPOST('category', 'int');
+    $citrusDAO->fk_product = GETPOST('fk_product', 'int');
+    if (!$citrusDAO->price) {
+        if ($citrusDAO->categoryId) {
             $categoriesDAO = new CitrusCategories($db);
-            $default_price = $categoriesDAO->fetchDefaultPrice($object->categoryId);
-            $object->price = $default_price;
+            $default_price = $categoriesDAO->fetchDefaultPrice($citrusDAO->categoryId);
+            $citrusDAO->price = $default_price;
         } else {
             $citrus_default_price = $conf->global->CITRUSMANAGER_DEFAULT_PRICE;
-            $object->price = $citrus_default_price;
+            $citrusDAO->price = $citrus_default_price;
         }
     }
     if ($id) {
-        $object->id = $id;
-        return $object->update();
+        $citrusDAO->id = $id;
+        return $citrusDAO->update();
     } else {
-        return $object->create();
+        return $citrusDAO->create();
     }
 };
 
@@ -322,11 +322,11 @@ if (GETPOST('cancel', 'alpha')) {
         case 'confirm_delete':
             if ('yes' == GETPOST('confirm', 'alpha')) {
                 $id = GETPOST('id', 'int');
-                $id = $object->fetch($id);
+                $id = $citrusDAO->fetch($id);
                 if ($id <= 0) {
                     echo '<script>alert("db_error");</script>';
                 } else {
-                    if($object->remove() == 1) {
+                    if($citrusDAO->remove() == 1) {
                         echo '<script>alert("ok");</script>';
                         redirect_and_exit('list.php');
                     } else {
