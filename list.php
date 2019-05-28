@@ -41,30 +41,13 @@ $id = GETPOST("id",'int');
  * View
  */
 
-
-// surround function: enclose in HTML opening/closing tags
-$surround = function($tag, $contents, $params = array()) {
-    $param_list = '';
-    foreach ($params as $param => $value) {
-        $param_list .= ' ' . $param . '=' . $value;
-    }
-    $opening_tag = '<' . $tag . $param_list . '>';
-    $closing_tag = '</' . $tag . '>';
-
-    return $opening_tag . $contents . $closing_tag;
-};
-
 $userstatic=new User($db);
 
-$new_card_btn = '';
-$new_card_btn  = $surround('a',
-    $langs->trans('NewCitrus') .
-        '<span class="fa fa-plus-circle valignmiddle"></span>',
-    array(
-        'class' => 'butActionNew',
-        'href' => 'card.php?action=create'
-    )
-);
+$new_card_url = dol_buildpath('citrusmanager/card.php?action=create', 1);
+$new_card_btn  = '
+<a href="'. $new_card_url . '">
+    <span class="fa fa-plus-circle valignmiddle"></span>
+</a>';
 
 llxHeader('', $langs->trans('CitrusList'));
 
@@ -95,6 +78,24 @@ $listSQL = <<<SQL
     ON citrus.fk_user_creat = user.rowid
     AND citrus.entity = __CONF_ENTITY__
 SQL;
+
+$list_row_template = <<<HTML
+<tr class="oddeven">
+    <td align="left" class="id-and-ref-cell">
+        <a href="{LINK_TO_CARD}">{O:rowid}&nbsp;{PICTO_CITRUS}&nbsp;{O:ref}</a>
+    </td>    
+    <td align="left" class="label-cell">{O:label}</td>    
+    <td align="left" class="price-cell">{OBJ_PRICE}</td>    
+    <td align="left" class="date-cell">{O:date_creation}</td>    
+    <td align="left" class="category-cell">{CATEGORY}</td>    
+    <td align="left" class="product-cell">{PARENT_PRODUCT}</td>
+    <td align="left" class="action-cell">
+        <a href="{URL_EDIT}">{IMG_EDIT}</a>
+        <a href="{URL_DELETE}">{IMG_DELETE}</a>
+    </td>    
+</tr>
+HTML;
+
 
 $listSQL = template_fill($listSQL, array('CONF_ENTITY' => $conf->entity));
 $listSQL .= $db->order($sortfield, $sortorder);
@@ -190,6 +191,26 @@ if ($responseSQL) {
         $sortorder
     );
     print_liste_field_titre(
+        'CitrusCategory',
+        $_SERVER['PHP_SELF'],
+        'citrus.category',
+        '',
+        $param,
+        'align="left"',
+        $sortfield,
+        $sortorder
+    );
+    print_liste_field_titre(
+        'Product',
+        $_SERVER['PHP_SELF'],
+        'citrus.fk_product',
+        '',
+        $param,
+        'align="left"',
+        $sortfield,
+        $sortorder
+    );
+    print_liste_field_titre(
         "Actions"
     );
     echo '</tr>', "\n";
@@ -198,17 +219,37 @@ if ($responseSQL) {
     for ($i = 0; $i < $row_count; $i++)
     {
 		$obj = $db->fetch_object($responseSQL);
-		echo '<tr class="oddeven">';
+        $url_of_card = dol_buildpath('citrusmanager/card.php?id=' . $obj->rowid, 1);
+		echo template_fill(
+		    $list_row_template,
+            array(
+                'LINK_TO_CARD' => $url_of_card,
+                'ROWID' => $obj->rowid,
+                'PICTO_CITRUS' => img_object(
+                    $langs->trans("ShowCitrus"),
+                    'citrus@citrusmanager',
+                    'style="max-width: 1.5em"'
+                ),
+                'OBJ_PRICE' => $obj->price ?: $langs->trans('Unavailable'),
+                'CATEGORY' => '',
+                'PARENT_PRODUCT' => '',
+                'IMG_EDIT' => img_edit(),
+                'IMG_DELETE' => img_delete(),
+                'URL_EDIT' => dol_buildpath('citrusmanager/card.php?id=' . $obj->rowid . '&action=edit', 1),
+                'URL_DELETE' => dol_buildpath('citrusmanager/card.php?id=' . $obj->rowid . '&action=delete', 1)
+            ),
+            $obj
+        );
+        /*echo '<tr class="oddeven">';
 		// Id
 		echo '<td align="left">';
-		$url_of_card = 'card.php?id=' . $obj->rowid;
 		echo $surround(
 		    'a',
             $obj->rowid .
             img_object(
-                $langs->trans("ShowCitrus"),
+                $langs->trans('ShowCitrus'),
                 'citrus@citrusmanager',
-                'style="max-width: 1.5em"'
+                'style="max-width: 1em"'
             ) . '&nbsp' . $obj->ref,
             array('href' => $url_of_card)
         );
@@ -230,7 +271,7 @@ if ($responseSQL) {
             ),
             array()
         );
-		echo "</tr>\n";
+		echo "</tr>\n";*/
 	}
 	echo "</table>";
 	echo '</div>';
