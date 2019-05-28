@@ -42,10 +42,36 @@ $new_card_btn  = '
 
 llxHeader('', $langs->trans('CitrusList'));
 
+function build_sql_filters() {
+    global $db;
+    $ret = '';
+    $filters = array();
+    $names = array(
+        'citrus_ref',
+        'citrus_label',
+        'citrus_price',
+        'citrus_date',
+        'category_ref',
+        'product_ref'
+    );
+    foreach ($names as $filter_name) {
+        $val = GETPOST('search_' . $filter_name);
+        $sql_filter_field_name = str_replace('_', '.', $filter_name);
+        if (!empty($val)) {
+            $filters[] = '' . $sql_filter_field_name . ' LIKE ' . '"%' . $db->escape($val) . '%"';
+        }
+    }
+    if (!empty($filters)) {
+        return ' WHERE ' . implode(' AND ', $filters);
+    }
+
+    return '';
+}
 
 $sql_config = array(
     'CONF_ENTITY' => $conf->entity,
-    'llx' => MAIN_DB_PREFIX
+    'llx' => MAIN_DB_PREFIX,
+    'FILTERS' => build_sql_filters()
 );
 $countSQL = <<<SQL
     SELECT COUNT(citrus.rowid)
@@ -53,7 +79,8 @@ $countSQL = <<<SQL
     LEFT JOIN __llx__user as user
     ON citrus.fk_user_creat = user.rowid
     AND citrus.entity = __CONF_ENTITY__
-SQL;
+SQL
+    . ' __FILTERS__';
 $countSQL = template_fill($countSQL, $sql_config);
 
 $listSQL = <<<SQL
@@ -78,7 +105,8 @@ $listSQL = <<<SQL
     ON citrus.fk_product = product.rowid
     LEFT JOIN __llx__c_citrus_category as category
     ON citrus.fk_category = category.rowid
-SQL;
+SQL
+    . ' __FILTERS__';
 $listSQL = template_fill($listSQL, $sql_config);
 $listSQL .= $db->order($sortfield, $sortorder);
 $listSQL .= $db->plimit($limit, $offset);
@@ -101,6 +129,7 @@ $list_row_template = <<<HTML
 HTML;
 
 $responseCountSQL = $db->query($countSQL);
+if (!$responseCountSQL) dol_print_error($db);
 $count_field_name = 'COUNT(citrus.rowid)';
 $total_row_count = $db->fetch_object($responseCountSQL)->$count_field_name;
 $db->free($responseCountSQL);
@@ -126,10 +155,17 @@ if ($responseSQL) {
 
 	$param = "";
 	echo '<div class="div-table-responsive">', "\n";
+	echo '<form>';
 	echo '<table class="tagtable liste">', "\n";
 
 	echo '<tr class="liste_titre_filter">', "\n";
-
+	echo '<td><input type="" name="search_citrus_ref" value="'. GETPOST('search_citrus_ref') .'" /></td>', "\n\t";
+    echo '<td><input type="" name="search_citrus_label" value="'. GETPOST('search_citrus_label') .'" /></td>', "\n\t";
+    echo '<td><input type="" name="search_citrus_price" value="'. GETPOST('search_citrus_price') .'" /></td>', "\n\t";
+    echo '<td><input type="" name="search_citrus_date" value="'. GETPOST('search_citrus_date') .'" /></td>', "\n\t";
+    echo '<td><input type="" name="search_category_ref" value="'. GETPOST('search_category_ref') .'" /></td>', "\n\t";
+    echo '<td><input type="" name="search_product_ref" value="'. GETPOST('search_product_ref') .'" /></td>', "\n\t";
+    echo '<td><input type="submit" /></td>', "\n\t";
 	// TODO: display filter inputs
     // TODO: enable user to choose what columns they want
     // TODO: enable mass actions rather than individual actions
@@ -240,6 +276,7 @@ if ($responseSQL) {
         );
 	}
 	echo "</table>";
+    echo '</form>';
 	echo '</div>';
 
 	$db->free($responseSQL);
