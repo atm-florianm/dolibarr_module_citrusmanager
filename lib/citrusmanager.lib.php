@@ -16,13 +16,14 @@
  */
 
 /**
- * @param $template string     Template string with some var names in brackets ({VAR} or {T:KEY})
+ * @param $template string     Template string with some var names in brackets ({VAR} or {T:KEY} or {O:KEY})
  * @param $replacements array  Replacements for each VAR
+ * @param $object object       Object whose fields will be used for {O:KEY} inclusions.
  * @return string              The filled template: {VAR} inclusions are replaced with dictionary
  *                             values and {T:KEY} inclusions are replaced with their translation from
  *                             the $langs object.
  */
-function template_fill ($template, $replacements) {
+function template_fill ($template, $replacements, $object = NULL) {
     global $langs;
     $filled_template = $template;
     // Templating: replace some underscore-prefixed names with their dictionary value
@@ -39,6 +40,17 @@ function template_fill ($template, $replacements) {
         },
         $filled_template
     );
+
+    if ($object) {
+        $filled_template = preg_replace_callback(
+            '/{O:([\w]+)}/',
+            function ($matches) use ($object) {
+                $field = $matches[1];
+                return $object->$field;
+            },
+            $filled_template
+        );
+    }
     return $filled_template;
 }
 
