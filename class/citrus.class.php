@@ -49,6 +49,8 @@ class Citrus extends CommonObject
      * @var int
      */
     public $fk_product;
+    public $product_ref;
+    public $product_id;
     public $tms;
     public $import_key;
     public $fk_user_creat;
@@ -77,20 +79,24 @@ class Citrus extends CommonObject
 
     function fetch($id) {
         global $conf;
-        $sql = 'SELECT 
-                    rowid,
-                    ref, 
-                    label,
-                    price,
-                    fk_product,
-                    date_creation,
-                    tms,
-                    import_key, 
-                    fk_user_creat, 
-                    fk_user_modif
-                FROM ' . $this->table_name . '
-                WHERE rowid = ' . $id . '
-                AND entity = ' . $conf->entity;
+        $sql = 'SELECT
+                    citrus.rowid,
+                    citrus.ref,
+                    citrus.label,
+                    citrus.price,
+                    citrus.fk_product,
+                    product.ref as product_ref,
+                    product.rowid as product_id,
+                    citrus.date_creation,
+                    citrus.tms,
+                    citrus.import_key,
+                    citrus.fk_user_creat,
+                    citrus.fk_user_modif
+                FROM ' . $this->table_name . ' as citrus
+                LEFT JOIN ' . MAIN_DB_PREFIX . 'product as product
+                ON citrus.fk_product = product.rowid
+                WHERE citrus.rowid = ' . $id . '
+                AND citrus.entity = ' . $conf->entity;
 
         dol_syslog('Citrus::fetch', LOG_DEBUG);
 
@@ -102,15 +108,17 @@ class Citrus extends CommonObject
                 $obj,
                 array(
                     'id',
-					'ref',
-					'label',
-					'price',
-					'fk_product',
-					'date_creation',
-					'tms',
-					'import_key',
-					'fk_user_creat',
-					'fk_user_modif')
+                    'ref',
+                    'label',
+                    'price',
+                    'fk_product',
+                    'product_ref',
+                    'product_id',
+                    'date_creation',
+                    'tms',
+                    'import_key',
+                    'fk_user_creat',
+                    'fk_user_modif')
             );
             $this->db->free($responseSQL);
 

@@ -102,6 +102,10 @@ $template_show_citrus = <<<HTML
         <td class="">{T:CitrusCategory}</td>
         <td>{CATEGORY}</td>
     </tr>
+    <tr>
+        <td class="">{T:ParentProductOfCitrus}</td>
+        <td>{PARENT_PRODUCT_REF}</td>
+    </tr>
 </table>
 {FORM_BUTTONS?}
 {FORM_END?}
@@ -208,7 +212,8 @@ function show_citrus ($is_in_edit_mode) {
             ),
             'FORM_BUTTONS?' => '<input type="submit" class="button" accesskey="s" value="{T:Save}" name="save"/>',
             'FORM_END?' => '</form>',
-            'ACTION_BUTTONS?' => ''
+            'ACTION_BUTTONS?' => '',
+            'PARENT_PRODUCT_REF' => $citrusDAO->product_ref
         );
     } else {
         if ($citrusDAO->categoryId) {
@@ -228,8 +233,9 @@ function show_citrus ($is_in_edit_mode) {
                 </div>
             ';
         } else {
-            $categoryDisplay = 'N/A';
+            $categoryDisplay = $langs->trans('Undefined');
         }
+        $parent_product_url = dol_buildpath('product/card.php?id=' . $citrusDAO->product_id . '&mainmenu=products', 1);
         $template_values = array(
             'CITRUS_REF' => $citrusDAO->ref,
             'CITRUS_LABEL' => $citrusDAO->label,
@@ -242,7 +248,9 @@ function show_citrus ($is_in_edit_mode) {
                 <div class="tabsAction">
                     <a href="'. $edit_url . '" class="butAction">' . $langs->trans('Modify') . '</a>
                     <a href="'. $delete_url . '" class="butActionDelete">' . $langs->trans('Delete') . '</a>
-                </div>'
+                </div>',
+            'PARENT_PRODUCT_REF' => $citrusDAO->product_id ?
+                '<a href="'. $parent_product_url .'">'. $citrusDAO->product_ref .'</a>' : $langs->trans('Undefined')
         );
     }
     echo template_fill(
