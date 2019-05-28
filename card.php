@@ -81,8 +81,7 @@ $form = new Form($db);
 $categoriesDAO = new CitrusCategories($db);
 
 // by default, use empty category (ID 0)
-$allCategories = array(0 => '');
-$allCategories = array_merge($allCategories, $categoriesDAO->fetchAll());
+$allCategories = array(0 => '') + $categoriesDAO->fetchAll();
 
 $template_show_citrus = <<<HTML
 {FORM_START?}
