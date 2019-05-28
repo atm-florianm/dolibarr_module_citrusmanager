@@ -22,6 +22,7 @@ $template_new_citrus_form = <<<HTML
             <td class="fieldrequired">{T:CitrusRef}</td>
             <td><input id="citrusref"
                    name="ref"
+                   required
                    class="flat minwidth100"
                    style="width: 80%"
                    value="{CITRUS_REF}"
@@ -32,6 +33,7 @@ $template_new_citrus_form = <<<HTML
             <td class="fieldrequired">{T:CitrusLabel}</td>
             <td><input id="citruslabel"
                    name="label"
+                   required
                    class="flat minwidth100"
                    style="width: 80%"
                    value="{CITRUS_LABEL}"
@@ -39,7 +41,7 @@ $template_new_citrus_form = <<<HTML
             <td>{T:CitrusLabelHint}</td>
         </tr>
         <tr>
-            <td class="fieldrequired">{T:CitrusPrice}</td>
+            <td class="">{T:CitrusPrice}</td>
             <td><input id="citrusprice"
                    name="price"
                    class="flat minwidth100"
@@ -136,9 +138,9 @@ function show_form_create () {
                 $allCategories,
                 0
             ),
-            'CITRUS_REF' => $product ? $product->ref : '',
-            'CITRUS_LABEL' => $product ? $product->label : '',
-            'CITRUS_PRICE' => $product ? $product->price : '',
+            'CITRUS_REF' => $product ? $product->ref : GETPOST('ref'),
+            'CITRUS_LABEL' => $product ? $product->label : GETPOST('label'),
+            'CITRUS_PRICE' => $product ? $product->price : GETPOST('price'),
             'PARENT_PRODUCT_REF' => $product ? $product->ref : '',
             'PARENT_PRODUCT_ID' => $product ? $product->id : ''
         )
@@ -212,17 +214,31 @@ function show_citrus ($is_in_edit_mode) {
             'ACTION_BUTTONS?' => ''
         );
     } else {
+        if ($citrusDAO->categoryId) {
+            $categoryDisplay = '
+                <div class="select2-container-multi-dolibarr">
+                    <ul class="select2-choices-dolibarr">
+                        <li class="select2-search-choice-dolibarr noborderoncategories" 
+                            style="background: #454545; padding: 0.3em;">
+                            <img src="/theme/eldy/img/object_category.png" alt="" class="inline-block" />
+                            <span class="categtextwhite">
+                                ' .
+                                dol_htmlentities($allCategories[$citrusDAO->categoryId])
+                                . '
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            ';
+        } else {
+            $categoryDisplay = 'N/A';
+        }
         $template_values = array(
             'CITRUS_REF' => $citrusDAO->ref,
             'CITRUS_LABEL' => $citrusDAO->label,
             'CITRUS_PRICE' => $citrusDAO->price ?: $langs->trans('Unavailable'),
             'FORM_START?' => '',
-            'CATEGORY' => '<div class="select2-container-multi-dolibarr">
-                <ul class="select2-choices-dolibarr">
-                <li class="select2-search-choice-dolibarr noborderoncategories"
-                                style="background: #454545; padding: 0.3em;">
-                     <img src="/theme/eldy/img/object_category.png" alt="" class="inline-block">
-                            <span class="categtextwhite"> ' . dol_htmlentities($allCategories[$citrusDAO->categoryId]) . '</span></li></ul>',
+            'CATEGORY' => $categoryDisplay,
             'FORM_BUTTONS?' => '',
             'FORM_END?' => '',
             'ACTION_BUTTONS?' => '
@@ -249,12 +265,23 @@ function show_citrus ($is_in_edit_mode) {
  *             -1 if SQL insert or update failed,
  *             -2 if SQL insert was executed but last_insert_id <= 0
  */
-$save_citrus = function ($id = null) use ($db, $citrusDAO, $conf) {
+function save_citrus ($id = null) {
+    global $db;
+    global $conf;
+    global $citrusDAO;
     $citrusDAO->ref = GETPOST('ref', 'alpha');
     $citrusDAO->label = GETPOST('label', 'alpha');
     $citrusDAO->price = GETPOST('price', 'int');
     $citrusDAO->categoryId = GETPOST('category', 'int');
     $citrusDAO->fk_product = GETPOST('fk_product', 'int');
+
+    // required fields: if not filled, return error code
+    if (empty($citrusDAO->ref)) {
+        return -3;
+    } else if (empty($citrusDAO->label)) {
+        return -3;
+    }
+
     if (!$citrusDAO->price) {
         if ($citrusDAO->categoryId) {
             $categoriesDAO = new CitrusCategories($db);
@@ -290,12 +317,18 @@ if (GETPOST('cancel', 'alpha')) {
             break;
         case 'save':
             $id = GETPOST('id', 'int');
-            $result = $save_citrus($id);
+            $result = save_citrus($id);
             if ($result > 0) {
                 redirect_and_exit('card.php?id=' . $result);
             } else {
-                setEventMessages('Database error: failed to save citrus.', array(), 'errors');
-                dol_print_error($db);
+                if ($result === -3) {
+                    setEventMessages('Error: some required fields were left empty.', array(), 'warnings');
+                    show_form_create();
+                } else {
+                    setEventMessages('Database error: failed to save citrus.', array(), 'errors');
+                    dol_print_error($db);
+                    show_form_create();
+                }
             }
             break;
         case 'edit':
