@@ -175,8 +175,6 @@ function show_citrus ($is_in_edit_mode) {
         dol_print_error();
         return;
     }
-    llxHeader();
-    echo "<br>";
     $edit_url = current_page_with_params(array('id' => $id, 'action' => 'edit'));
     $delete_url = current_page_with_params(array('id' => $id, 'action' => 'delete'));
     dol_fiche_head(
@@ -248,15 +246,12 @@ function show_citrus ($is_in_edit_mode) {
                 </div>'
         );
     }
-
     echo template_fill(
         $template_show_citrus,
         $template_values
     );
     // dol_banner_tab();
-
     dol_fiche_end();
-
 };
 
 /**
@@ -305,6 +300,7 @@ if (GETPOST('cancel', 'alpha')) {
     // or creating a new one
     if (GETPOST('id', 'int')) {
         // back to card edit form
+        llxHeader();
         show_citrus(true);
     } else {
         // back to card creation form
@@ -332,6 +328,7 @@ if (GETPOST('cancel', 'alpha')) {
             }
             break;
         case 'edit':
+            llxHeader();
             show_citrus(true);
             break;
         case 'delete':
@@ -370,10 +367,12 @@ if (GETPOST('cancel', 'alpha')) {
                     }
                 }
             } else {
+                llxHeader();
                 show_citrus(false);
             }
             break;
         default:
+            llxHeader();
             show_citrus(false);
     }
 }
