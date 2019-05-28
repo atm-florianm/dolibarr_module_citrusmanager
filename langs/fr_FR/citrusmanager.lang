@@ -19,6 +19,7 @@
 ListCitruses = Mes agrumes
 NewCitrus = Nouvel agrume
 CitrusList = Mes agrumes
+CitrusCard = Agrume (détail)
 CitrusmanagerArea = Espace de gestion des agrumes
 RedirectionNotice = Vous allez être redirigé vers la liste
 

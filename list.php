@@ -32,15 +32,6 @@ $pageprev = max(0, $page - 1);
 $pagenext = $page + 1;
 $id = GETPOST("id",'int');
 
-
-/*
- * Actions
- */
-
-/*
- * View
- */
-
 $userstatic=new User($db);
 
 $new_card_url = dol_buildpath('citrusmanager/card.php?action=create', 1);
@@ -52,15 +43,18 @@ $new_card_btn  = '
 llxHeader('', $langs->trans('CitrusList'));
 
 
-
+$sql_config = array(
+    'CONF_ENTITY' => $conf->entity,
+    'llx' => MAIN_DB_PREFIX
+);
 $countSQL = <<<SQL
     SELECT COUNT(citrus.rowid)
-    FROM llx_citrusmanager_citrus as citrus
-    LEFT JOIN llx_user as user
+    FROM __llx__citrusmanager_citrus as citrus
+    LEFT JOIN __llx__user as user
     ON citrus.fk_user_creat = user.rowid
     AND citrus.entity = __CONF_ENTITY__
 SQL;
-$countSQL = template_fill($countSQL, array('CONF_ENTITY' => $conf->entity));
+$countSQL = template_fill($countSQL, $sql_config);
 
 $listSQL = <<<SQL
     SELECT 
@@ -69,57 +63,52 @@ $listSQL = <<<SQL
            citrus.label,
            citrus.price,
            citrus.date_creation,
+           category.ref as category_ref,
+           product.ref as product_ref,
+           product.rowid as product_id,
            citrus.tms,
            user.login,
            user.firstname,
            user.lastname
-    FROM llx_citrusmanager_citrus as citrus
-    LEFT JOIN llx_user as user
+    FROM __llx__citrusmanager_citrus as citrus
+    LEFT JOIN __llx__user as user
     ON citrus.fk_user_creat = user.rowid
     AND citrus.entity = __CONF_ENTITY__
+    LEFT JOIN __llx__product as product
+    ON citrus.fk_product = product.rowid
+    LEFT JOIN __llx__c_citrus_category as category
+    ON citrus.fk_category = category.rowid
 SQL;
+$listSQL = template_fill($listSQL, $sql_config);
+$listSQL .= $db->order($sortfield, $sortorder);
+$listSQL .= $db->plimit($limit, $offset);
 
 $list_row_template = <<<HTML
 <tr class="oddeven">
     <td align="left" class="id-and-ref-cell">
         <a href="{LINK_TO_CARD}">{O:rowid}&nbsp;{PICTO_CITRUS}&nbsp;{O:ref}</a>
-    </td>    
-    <td align="left" class="label-cell">{O:label}</td>    
-    <td align="left" class="price-cell">{OBJ_PRICE}</td>    
-    <td align="left" class="date-cell">{O:date_creation}</td>    
-    <td align="left" class="category-cell">{CATEGORY}</td>    
-    <td align="left" class="product-cell">{PARENT_PRODUCT}</td>
+    </td>
+    <td align="left" class="label-cell">{O:label}</td>
+    <td align="left" class="price-cell">{OBJ_PRICE}</td>
+    <td align="left" class="date-cell">{O:date_creation}</td>
+    <td align="left" class="category-cell">{O:category_ref}</td>
+    <td align="left" class="product-cell">{PRODUCT}</td>
     <td align="left" class="action-cell">
         <a href="{URL_EDIT}">{IMG_EDIT}</a>
         <a href="{URL_DELETE}">{IMG_DELETE}</a>
-    </td>    
+    </td>
 </tr>
 HTML;
-
-
-$listSQL = template_fill($listSQL, array('CONF_ENTITY' => $conf->entity));
-$listSQL .= $db->order($sortfield, $sortorder);
-$listSQL .= $db->plimit($limit, $offset);
-
-//if (! $user->admin) $listSQL .= " AND (b.fk_user = ".$user->id." OR b.fk_user is NULL OR b.fk_user = 0)";
 
 $responseCountSQL = $db->query($countSQL);
 $count_field_name = 'COUNT(citrus.rowid)';
 $total_row_count = $db->fetch_object($responseCountSQL)->$count_field_name;
-
-$responseSQL = $db->query($listSQL);
 $db->free($responseCountSQL);
 
+
+$responseSQL = $db->query($listSQL);
 if ($responseSQL) {
     $page = "$page";
-    $varexp = array(
-        'page' => $page,
-        'param' => $param,
-        'sortfield' => $sortfield,
-        'sortorder' => $sortorder,
-        'num' => $db->num_rows($responseSQL),
-        'totalnboflines' => $total_row_count
-    );
     print_barre_liste(
         $langs->trans("CitrusList"),
         $page,
@@ -219,7 +208,11 @@ if ($responseSQL) {
     for ($i = 0; $i < $row_count; $i++)
     {
 		$obj = $db->fetch_object($responseSQL);
+		//var_dump($obj); die();
         $url_of_card = dol_buildpath('citrusmanager/card.php?id=' . $obj->rowid, 1);
+        $url_of_product_card = dol_buildpath(
+            'product/card.php?id=' . $obj->product_id,
+            1) . '&mainmenu=products';
 		echo template_fill(
 		    $list_row_template,
             array(
@@ -231,8 +224,13 @@ if ($responseSQL) {
                     'style="max-width: 1.5em"'
                 ),
                 'OBJ_PRICE' => $obj->price ?: $langs->trans('Unavailable'),
-                'CATEGORY' => '',
-                'PARENT_PRODUCT' => '',
+                'CATEGORY' => '' . $obj->fk_category,
+                'PRODUCT' => $obj->product_id ?
+                    '<a href="'. $url_of_product_card .'">
+                        ' . $obj->product_ref . '
+                     </a>'
+                    :
+                    '',
                 'IMG_EDIT' => img_edit(),
                 'IMG_DELETE' => img_delete(),
                 'URL_EDIT' => dol_buildpath('citrusmanager/card.php?id=' . $obj->rowid . '&action=edit', 1),
@@ -240,38 +238,6 @@ if ($responseSQL) {
             ),
             $obj
         );
-        /*echo '<tr class="oddeven">';
-		// Id
-		echo '<td align="left">';
-		echo $surround(
-		    'a',
-            $obj->rowid .
-            img_object(
-                $langs->trans('ShowCitrus'),
-                'citrus@citrusmanager',
-                'style="max-width: 1em"'
-            ) . '&nbsp' . $obj->ref,
-            array('href' => $url_of_card)
-        );
-		echo '</td>';
-
-		echo $surround('td', $obj->label, array('align' => 'left'));
-        echo $surround('td', $obj->price ?: $langs->trans('Unavailable'), array('align' => 'left'));
-        echo $surround('td', $obj->date_creation, array('align' => 'left'));
-        echo $surround(
-            'td',
-            $surround(
-                'a',
-                img_edit(),
-                array('href' => 'card.php?id=' . $obj->rowid . '&action=edit')
-            ) . $surround(
-                'a',
-                img_delete(),
-                array('href' => 'card.php?id=' . $obj->rowid . '&action=delete')
-            ),
-            array()
-        );
-		echo "</tr>\n";*/
 	}
 	echo "</table>";
 	echo '</div>';
