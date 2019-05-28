@@ -77,7 +77,7 @@ $countSQL = <<<SQL
     ON citrus.fk_user_creat = user.rowid
     AND citrus.entity = __CONF_ENTITY__
 SQL;
-$countSQL = $template_fill($countSQL, array('CONF_ENTITY' => $conf->entity));
+$countSQL = template_fill($countSQL, array('CONF_ENTITY' => $conf->entity));
 
 $listSQL = <<<SQL
     SELECT 
@@ -96,7 +96,7 @@ $listSQL = <<<SQL
     AND citrus.entity = __CONF_ENTITY__
 SQL;
 
-$listSQL = $template_fill($listSQL, array('CONF_ENTITY' => $conf->entity));
+$listSQL = template_fill($listSQL, array('CONF_ENTITY' => $conf->entity));
 $listSQL .= $db->order($sortfield, $sortorder);
 $listSQL .= $db->plimit($limit, $offset);
 

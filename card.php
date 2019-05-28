@@ -110,12 +110,10 @@ HTML;
 // Function that displays the Citrus creation form.
 function show_form_create () {
     global $template_new_citrus_form;
-    global $template_fill;
     global $form;
     global $langs;
     global $allCategories;
     global $db;
-    global $current_page_with_params;
     require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
     $product = NULL;
     if (GETPOST('derive_from_product',  'int')) {
@@ -127,10 +125,10 @@ function show_form_create () {
             }
         }
     }
-    $new_citrus_form = $template_fill(
+    $new_citrus_form = template_fill(
         $template_new_citrus_form,
         array(
-            'SAVE_URL'          => $current_page_with_params(array('action' => 'save')),
+            'SAVE_URL'          => current_page_with_params(array('action' => 'save')),
             'NEW_SESSION_TOKEN' => $_SESSION['newtoken'],
             'FICHE_TITRE'       => load_fiche_titre($langs->trans('NewCitrus')),
             'CATEGORY'        => $form->selectarray(
@@ -159,34 +157,29 @@ function show_citrus ($is_in_edit_mode) {
     global $db;
     global $object;
     global $langs;
-    global $template_fill;
-    global $current_page_with_params;
     global $template_show_citrus;
     global $form;
     global $allCategories;
     $id = GETPOST('id', 'int');
     if ($id <= 0) {
         // invalid ID passed by POST or GET
-        header('Location: list.php');
-        exit;
+        redirect_and_exit('list.php');
         return;
     }
     $id = $object->fetch($id);
     if ($id < 0) {
         // no citrus with this ID in the database
-        header('Location: list.php');
-        exit;
+        redirect_and_exit('list.php');
         return;
     }
     llxHeader();
     echo "<br>";
-    $current_page = $_SERVER['PHP_SELF'];
-    $edit_url = $current_page_with_params(array('id' => $id, 'action' => 'edit'));
-    $delete_url = $current_page_with_params(array('id' => $id, 'action' => 'delete'));
+    $edit_url = current_page_with_params(array('id' => $id, 'action' => 'edit'));
+    $delete_url = current_page_with_params(array('id' => $id, 'action' => 'delete'));
     dol_fiche_head(
         array( // describes the available tab links
             array(
-                $current_page_with_params(array('id' => $id)), // url
+                current_page_with_params(array('id' => $id)), // url
                 $langs->trans('Card'),                   // title
                 'card_tab'                                     // key (ID)
             )
@@ -199,10 +192,11 @@ function show_citrus ($is_in_edit_mode) {
     if ($is_in_edit_mode) {
         $template_values = array(
             'CITRUS_REF' => '<input name="ref" value="'. $object->ref .'">',
-            'CITRUS_LABEL' => '<textarea name="label" style="width: 85%; height: 5em;">' . $object->label . '</textarea>' . "\n",
+            'CITRUS_LABEL' => '<textarea name="label" style="width: 85%; height: 5em;">'
+                               . $object->label . '</textarea>' . "\n",
             'CITRUS_PRICE' => '<input name="price" value="' . $object->price . '">',
             'FORM_START?' => (
-                '<form action="' . $current_page . '?action=save"' . ' method="POST">' . "\n"
+                '<form action="' . current_page_with_params(array('action' => 'save')) . '" method="POST">' . "\n"
                 .'<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />' . "\n"
                 .'<input type="hidden" name="id" value="'.$id.'" />' . "\n"
                 .'<input type="hidden" name="fk_product" value="'.$object->fk_product.'" />'
@@ -238,7 +232,7 @@ function show_citrus ($is_in_edit_mode) {
         );
     }
 
-    echo $template_fill(
+    echo template_fill(
         $template_show_citrus,
         $template_values
     );
@@ -278,10 +272,6 @@ $save_citrus = function ($id = null) use ($db, $object, $conf) {
     }
 };
 
-$go_back_to_list = function () use ($list_view_url) {
-    header('location: ' . $list_view_url);
-};
-
 if (GETPOST('cancel', 'alpha')) {
     // assume that the 'cancel' parameter is only there if the user was previously editing a card
     // or creating a new one
@@ -290,7 +280,7 @@ if (GETPOST('cancel', 'alpha')) {
         show_citrus(true);
     } else {
         // back to card creation form
-        $go_back_to_list();
+        redirect_and_exit('list.php');
     }
 } else {
     switch ($action) {
@@ -301,8 +291,7 @@ if (GETPOST('cancel', 'alpha')) {
             $id = GETPOST('id', 'int');
             $result = $save_citrus($id);
             if ($result > 0) {
-                header('Location: card.php?id=' . $result);
-                exit;
+                redirect_and_exit('card.php?id=' . $result);
             } else {
                 setEventMessages('Database error: failed to save citrus.', array(), 'errors');
                 dol_print_error($db);
@@ -315,10 +304,10 @@ if (GETPOST('cancel', 'alpha')) {
             $form = new Form($db);
             $id = GETPOST('id', 'int');
             if ($id <= 0) {
-                $go_back_to_list();
+                redirect_and_exit('list.php');
             }
             $ajax_confirm_delete = $form->formconfirm(
-                $current_page_with_params(array('id' => $id)),
+                current_page_with_params(array('id' => $id)),
                 $langs->trans('DeleteCitrus'),
                 $langs->trans('DeleteCitrusAskForConfirmation'),
                 'confirm_delete',
@@ -339,7 +328,7 @@ if (GETPOST('cancel', 'alpha')) {
                 } else {
                     if($object->remove() == 1) {
                         echo '<script>alert("ok");</script>';
-                        $go_back_to_list();
+                        redirect_and_exit('list.php');
                     } else {
                         $lastdberror = $db->lasterror();
                         echo '<script>alert("not ok: ' . addslashes($lastdberror) . '");</script>';

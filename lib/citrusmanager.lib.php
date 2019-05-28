@@ -22,7 +22,8 @@
  *                             values and {T:KEY} inclusions are replaced with their translation from
  *                             the $langs object.
  */
-$template_fill = function ($template, $replacements) use ($langs) {
+function template_fill ($template, $replacements) {
+    global $langs;
     $filled_template = $template;
     // Templating: replace some underscore-prefixed names with their dictionary value
     foreach ($replacements as $key => $val) {
@@ -39,16 +40,31 @@ $template_fill = function ($template, $replacements) use ($langs) {
         $filled_template
     );
     return $filled_template;
-};
+}
 
 /**
  * @param $params array  URL parameters to be appended to the base URL
  * @return string        The URL of the current PHP page with additional parameters
  */
-$current_page_with_params = function ($params) {
+function current_page_with_params ($params) {
     $current_page = $_SERVER['PHP_SELF'];
     return $current_page . '?' . http_build_query($params);
 };
+
+/**
+ * As name says: adds a redirection header to $url and stops the interpreter
+ * @param $relative_url string  The URL part that comes after the module name
+ */
+function redirect_and_exit($relative_url)
+{
+    $url = dol_buildpath(
+        'citrusmanager/' . $relative_url,
+        1,
+        1
+    );
+    header('Location: ' . $url);
+    exit;
+}
 
 
 ///**
