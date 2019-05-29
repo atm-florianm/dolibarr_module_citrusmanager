@@ -40,29 +40,31 @@ $new_card_btn  = '
     <span class="fa fa-plus-circle valignmiddle"></span>
 </a>';
 
+$filter_config = array(
+    'citrus.ref'            => 'text',
+    'citrus.label'          => 'text',
+    'citrus.price'          => 'text',
+    'citrus.date_creation'  => 'date',
+    'category.ref'          => 'text',
+    'product.ref'           => 'text'
+);
+
 llxHeader('', $langs->trans('CitrusList'));
 
 function build_sql_filters() {
     global $db;
+    global $filter_config;
     $ret = '';
     $filters = array();
-    $names = array(
-        'citrus_ref',
-        'citrus_label',
-        'citrus_price',
-        'citrus_date',
-        'category_ref',
-        'product_ref'
-    );
-    foreach ($names as $filter_name) {
-        $val = GETPOST('search_' . $filter_name);
-        $sql_filter_field_name = str_replace('_', '.', $filter_name);
+    foreach ($filter_config as $sql_filter_field_name => $filter_type) {
+        $http_parameter_name = 'search_' . str_replace('.', '_', $sql_filter_field_name);
+        $val = GETPOST($http_parameter_name);
         if (!empty($val)) {
             $filters[] = '' . $sql_filter_field_name . ' LIKE ' . '"%' . $db->escape($val) . '%"';
         }
     }
     if (!empty($filters)) {
-        return ' WHERE ' . implode(' AND ', $filters);
+        return ' AND ' . implode(' AND ', $filters);
     }
 
     return '';
@@ -78,7 +80,11 @@ $countSQL = <<<SQL
     FROM __llx__citrusmanager_citrus as citrus
     LEFT JOIN __llx__user as user
     ON citrus.fk_user_creat = user.rowid
-    AND citrus.entity = __CONF_ENTITY__
+    LEFT JOIN __llx__c_citrus_category as category
+    ON citrus.fk_category = category.rowid
+    LEFT JOIN __llx__product as product
+    ON citrus.fk_product = product.rowid
+    WHERE citrus.entity = __CONF_ENTITY__
 SQL
     . ' __FILTERS__';
 $countSQL = template_fill($countSQL, $sql_config);
@@ -100,11 +106,11 @@ $listSQL = <<<SQL
     FROM __llx__citrusmanager_citrus as citrus
     LEFT JOIN __llx__user as user
     ON citrus.fk_user_creat = user.rowid
-    AND citrus.entity = __CONF_ENTITY__
     LEFT JOIN __llx__product as product
     ON citrus.fk_product = product.rowid
     LEFT JOIN __llx__c_citrus_category as category
     ON citrus.fk_category = category.rowid
+    WHERE citrus.entity = __CONF_ENTITY__
 SQL
     . ' __FILTERS__';
 $listSQL = template_fill($listSQL, $sql_config);
@@ -138,11 +144,22 @@ $db->free($responseCountSQL);
 $responseSQL = $db->query($listSQL);
 if ($responseSQL) {
     $page = "$page";
+
+    $filter_parameters = array();
+    foreach($filter_config as $filter_name => $filter_type) {
+        $filter_name = 'search_' . str_replace('.', '_', $filter_name);
+        $value = GETPOST($filter_name);
+        if (!empty($value)) {
+            $filter_parameters[] = $filter_name . '=' . urlencode($value);
+        }
+    }
+    $filter_parameters = '&' . implode('&', $filter_parameters);
+
     print_barre_liste(
         $langs->trans("CitrusList"),
         $page,
         $_SERVER['PHP_SELF'],
-        $param,
+        $filter_parameters,
         $sortfield,
         $sortorder,
         '',
@@ -153,18 +170,21 @@ if ($responseSQL) {
         $new_card_btn
     );
 
-	$param = "";
 	echo '<div class="div-table-responsive">', "\n";
 	echo '<form>';
 	echo '<table class="tagtable liste">', "\n";
 
 	echo '<tr class="liste_titre_filter">', "\n";
-	echo '<td><input type="" name="search_citrus_ref" value="'. GETPOST('search_citrus_ref') .'" /></td>', "\n\t";
-    echo '<td><input type="" name="search_citrus_label" value="'. GETPOST('search_citrus_label') .'" /></td>', "\n\t";
-    echo '<td><input type="" name="search_citrus_price" value="'. GETPOST('search_citrus_price') .'" /></td>', "\n\t";
-    echo '<td><input type="" name="search_citrus_date" value="'. GETPOST('search_citrus_date') .'" /></td>', "\n\t";
-    echo '<td><input type="" name="search_category_ref" value="'. GETPOST('search_category_ref') .'" /></td>', "\n\t";
-    echo '<td><input type="" name="search_product_ref" value="'. GETPOST('search_product_ref') .'" /></td>', "\n\t";
+	$filter_input_tpl = "\t" . '<td><input type="{type}" name="{name}" value="{val}" /></td>' . "\n";
+	foreach ($filter_config as $field => $type) {
+	    $name = 'search_' . str_replace('.', '_', $field);
+	    $td = template_fill($filter_input_tpl, array(
+	        'type' => $type,
+            'name' => $name,
+            'val'  => GETPOST($name)
+        ));
+	    echo $td;
+    }
     echo '<td><input type="submit" /></td>', "\n\t";
 	// TODO: display filter inputs
     // TODO: enable user to choose what columns they want
@@ -180,7 +200,7 @@ if ($responseSQL) {
         $_SERVER["PHP_SELF"],
         "citrus.rowid",
         "",
-        $param,
+        $filter_parameters,
         'align="left"',
         $sortfield,
         $sortorder
@@ -190,7 +210,7 @@ if ($responseSQL) {
         $_SERVER["PHP_SELF"],
         "citrus.label",
         "",
-        $param,
+        $filter_parameters,
         'align="left"',
         $sortfield,
         $sortorder
@@ -200,7 +220,7 @@ if ($responseSQL) {
         $_SERVER["PHP_SELF"],
         "citrus.price",
         "",
-        $param,
+        $filter_parameters,
         'align="left"',
         $sortfield,
         $sortorder
@@ -210,7 +230,7 @@ if ($responseSQL) {
         $_SERVER['PHP_SELF'],
         'citrus.date_creation',
         '',
-        $param,
+        $filter_parameters,
         'align="left"',
         $sortfield,
         $sortorder
@@ -220,7 +240,7 @@ if ($responseSQL) {
         $_SERVER['PHP_SELF'],
         'citrus.category',
         '',
-        $param,
+        $filter_parameters,
         'align="left"',
         $sortfield,
         $sortorder
@@ -230,7 +250,7 @@ if ($responseSQL) {
         $_SERVER['PHP_SELF'],
         'citrus.fk_product',
         '',
-        $param,
+        $filter_parameters,
         'align="left"',
         $sortfield,
         $sortorder
