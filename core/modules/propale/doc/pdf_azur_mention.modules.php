@@ -1720,7 +1720,7 @@ class pdf_azur_mention extends ModelePDFPropales
         $pdf->MultiCell(
             $frame_width, // width
             4, // height
-            '<b>'. $title . "&nbsp;:</b><br/>" . $specific_mention,
+            '<b>'. $title . "&nbsp;:</b><br/>" . str_replace("\n", '<br/>', $specific_mention),
             1, // border
             'L', // align
             true, // fill (background)
