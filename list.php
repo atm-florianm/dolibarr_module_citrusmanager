@@ -22,15 +22,15 @@ require_once DOL_DOCUMENT_ROOT.'/custom/citrusmanager/lib/citrusmanager.lib.php'
 // Load translation files required by the page
 $langs->loadLangs(array('citrusmanager', 'admin'));
 
-$action = GETPOST('action', 'alpha');
-$limit = GETPOST('limit', 'int') ?: $conf->liste_limit;
+$action    = GETPOST('action', 'alpha');
+$limit     = GETPOST('limit', 'int') ?: $conf->liste_limit;
 $sortfield = GETPOST("sortfield",'alpha') ?: 'citrus.rowid';
 $sortorder = GETPOST("sortorder",'alpha') ?: 'ASC';
-$page = max(0, GETPOST("page",'int') ?: 0);
-$offset = $limit * $page;
-$pageprev = max(0, $page - 1);
-$pagenext = $page + 1;
-$id = GETPOST("id",'int');
+$page      = max(0, GETPOST("page",'int') ?: 0);
+$offset    = $limit * $page;
+$pageprev  = max(0, $page - 1);
+$pagenext  = $page + 1;
+$id        = GETPOST("id",'int');
 
 $userstatic=new User($db);
 
