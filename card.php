@@ -72,7 +72,7 @@ $template_new_citrus_form = <<<HTML
     </table>
     <div align="center">
         <input type="submit" class="button" accesskey="s" value="{T:CreateCitrus}" name="create"/>
-        <input type="submit" class="button" accesskey="c" value="{T:Cancel}" name="cancel"/>
+        <input type="submit" class="button" accesskey="c" value="{T:Cancel}" formnovalidate name="cancel"/>
     </div>
 </form>
 HTML;
