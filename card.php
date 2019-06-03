@@ -195,8 +195,8 @@ function show_citrus ($is_in_edit_mode) {
     );
     if ($is_in_edit_mode) {
         $template_values = array(
-            'CITRUS_REF' => '<input name="ref" value="'. $citrusDAO->ref .'">',
-            'CITRUS_LABEL' => '<textarea name="label" style="width: 85%; height: 5em;">'
+            'CITRUS_REF' => '<input name="ref" value="'. $citrusDAO->ref .'" required/>',
+            'CITRUS_LABEL' => '<textarea name="label" style="width: 85%; height: 5em;" required>'
                                . $citrusDAO->label . '</textarea>' . "\n",
             'CITRUS_PRICE' => '<input name="price" value="' . $citrusDAO->price . '">',
             'FORM_START?' => (
@@ -210,7 +210,10 @@ function show_citrus ($is_in_edit_mode) {
                 $allCategories,
                 $citrusDAO->categoryId
             ),
-            'FORM_BUTTONS?' => '<input type="submit" class="button" accesskey="s" value="{T:Save}" name="save"/>',
+            'FORM_BUTTONS?' => '<center>'
+                              .'<input type="submit" class="button" accesskey="s" value="{T:Save}" name="save"/>'
+                              .'<input type="submit" class="button" accesskey="c" value="{T:Cancel}" formnovalidate name="cancel"/>'
+                              .'</center>',
             'FORM_END?' => '</form>',
             'ACTION_BUTTONS?' => '',
             'PARENT_PRODUCT_REF' => $citrusDAO->product_ref
@@ -308,7 +311,7 @@ if (GETPOST('cancel', 'alpha')) {
     if (GETPOST('id', 'int')) {
         // back to card edit form
         llxHeader();
-        show_citrus(true);
+        show_citrus(false);
     } else {
         // back to card creation form
         redirect_and_exit('list.php');
