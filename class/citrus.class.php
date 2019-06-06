@@ -146,7 +146,7 @@ class Citrus extends CommonObject
             "'. $this->db->escape($this->ref) . '",
             "'. $this->db->escape($this->label) .'",
             "'. $this->price .'",
-            "'. $this->fk_product .'",
+            "'. ($this->fk_product ?: 0) .'",
             "'. $this->categoryId .'",
             "'. $this->db->idate($now) . '"
             );';
