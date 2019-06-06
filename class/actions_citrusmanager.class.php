@@ -100,7 +100,7 @@ class ActionsCitrusmanager
      */
     public function addMoreActionsButtons($parameters, $object, $action, $hookmanager) {
         global $langs, $conf;
-        require_once DOL_DOCUMENT_ROOT . '/custom/citrusmanager/lib/citrusmanager.lib.php';
+        dol_include_once('citrusmanager/lib/citrusmanager.lib.php');
         if (in_array($parameters['currentcontext'], array('productcard')))	    // do something only for the context 'productcard'
         {
             $url = dol_buildpath(

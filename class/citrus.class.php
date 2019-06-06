@@ -174,6 +174,10 @@ class Citrus extends CommonObject
 
     function update() {
         global $conf;
+        if ($this->id < 0) {
+            setEventMessages('Invalid citrus ID for Citrus::update. ', array(), 'Errors');
+            return -1;
+        }
         assert($this->id >= 0);
         $this->db->begin();
         $prepSQL = 'UPDATE ' . $this->table_name . ' SET
@@ -195,8 +199,6 @@ class Citrus extends CommonObject
             $this->id
         );
         if ($prepSQL->execute()) {
-            $this->db->commit();
-            $this->db->begin();
             $this->db->commit();
             return $this->id;
         } else {
